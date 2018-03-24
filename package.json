@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "netlify-lambda": "^0.3.0",
     "opentok-react": "^0.7.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
@@ -10,8 +11,18 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:lambda": "netlify-lambda serve /src/functions",
     "build": "react-scripts build",
+    "build:lambda": "netlify-lambda build /src/functions",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "proxy": {
+    "/.netlify/functions": {
+      "target": "http://localhost:9000",
+      "pathRewrite": {
+        "^/\\.netlify/functions": ""
+      }
+    }
   }
 }

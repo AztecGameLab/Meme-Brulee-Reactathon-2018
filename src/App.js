@@ -10,6 +10,12 @@ class App extends Component {
     showControls: false
   };
 
+  sendHelloWorld = () => {
+    fetch("/.netlify/functions/HelloWorld")
+      .then(response => response.json())
+      .then(json => console.log(json));
+  };
+
   subscriberEventHandlers = {
     videoDisabled: event => {
       console.log("Subscriber video disabled!");
@@ -28,6 +34,8 @@ class App extends Component {
             <OTSubscriber properties={this.subscriberProperties} eventHandlers={this.subscriberEventHandlers} />
           </OTStreams>
         </OTSession>
+
+        <button onClick={this.sendHelloWorld}>Click me </button>
       </div>
     );
   }
