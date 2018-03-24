@@ -1,6 +1,8 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import Test from "./components/Test";
+require("dotenv").config();
 
 class App extends Component {
   render() {
@@ -11,7 +13,9 @@ class App extends Component {
           <h1 className="App-title">Welcome to React</h1>
         </header>
         <p className="App-intro">
+          Test key: {process.env.REACT_APP_TOK_KEY}
           To get started, edit <code>src/App.js</code> and save to reload.
+          <Test />
         </p>
       </div>
     );
