@@ -5,23 +5,6 @@ import "./App.css";
 import Test from "./components/Test";
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-
-    this.publisherProperties = {
-      audioFallbackEnabled: false,
-      showControls: false
-    };
-
-    this.publisherEventHandlers = {
-      streamCreated: event => {
-        console.log("Publisher stream created!");
-      },
-      streamDestroyed: event => {
-        console.log("Publisher stream destroyed!");
-      }
-    };
-  }
   render() {
     return (
       <div className="App">
