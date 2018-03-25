@@ -63,9 +63,9 @@ class Room extends Component {
         that.setState({ players });
       }
     });
-    // this.sessionRef.sessionHelper.session.on("signal:playGame", event => {
-    //   that.props.playGame();
-    // });
+    this.sessionRef.sessionHelper.session.on("signal:playGame", event => {
+      that.props.playGame();
+    });
     this.reactionListener();
   }
 
