@@ -7,18 +7,27 @@ import {
   CLEAR_MEMES,
   SUBMIT_MEME_PROGRESS,
   SUBMIT_MEME_SUCCESS,
-  SUBMIT_MEME_FAILURE
+  SUBMIT_MEME_FAILURE,
+  PHASE_CHANGE,
+  START_COOK,
+  COOK_TIME_IS_UP,
+  RECEIVED_MEMES
 } from "./memeConstants";
+
+import { GM_PHASES } from "./memeActions";
 
 //Initial State
 const initialMemeState = {
-  currentTemplate: "",
-  currentPhase: "",
+  currentTemplate: "idle",
+  currentPhase: GM_PHASES[0],
   loadMemeStatus: "idle",
   submitMemeStatus: "idle",
   memeTemplates: [],
   completedMemes: [],
-  errorMessage: ""
+  errorMessage: "",
+  cookTimeIsUp: "idle",
+  recievedMemes: [],
+  memeWasSent: false
 };
 
 //Status Process
@@ -38,9 +47,21 @@ export default (state = initialMemeState, action) => {
     case SUBMIT_MEME_PROGRESS:
       return Object.assign({}, state, { submitMemeStatus: "loading" });
     case SUBMIT_MEME_SUCCESS:
-      return Object.assign({}, state, { loadMemeStatus: "success", completedMemes: [...state.completedMemes, action.payload] });
+      return Object.assign({}, state, { loadMemeStatus: "success", completedMemes: action.payload });
     case SUBMIT_MEME_FAILURE:
       return Object.assign({}, state, { loadMemeStatus: "fail", errorMessage: action.payload });
+    case PHASE_CHANGE:
+      if (action.payload === GM_PHASES[0]) {
+        return { ...initialMemeState };
+      } else {
+        return Object.assign({}, state, { currentPhase: action.payload });
+      }
+    case START_COOK:
+      return Object.assign({}, state, { cookTimeIsUp: "progress" });
+    case COOK_TIME_IS_UP:
+      return Object.assign({}, state, { cookTimeIsUp: "finished" });
+    case RECEIVED_MEMES:
+      return Object.assign({}, state, { recievedMemes: [...state.recievedMemes, action.payload], memeWasSent: true });
     case CLEAR_MEMES:
       return {
         ...initialMemeState

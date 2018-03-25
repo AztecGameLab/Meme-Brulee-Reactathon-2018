@@ -5,6 +5,8 @@ import { bindActionCreators } from "redux";
 
 //Actions
 import { processImage, addPlayer, removePlayer, recieveReactions } from "../../features/users/UsersActions";
+import { playGame, recievedMemes } from "../../features/meme/memeActions";
+import { storeSession } from "../../features/session/sessionActions";
 
 //Selectors
 import { selectMyEmotions } from "../../features/users/UserSelectors";
@@ -22,6 +24,7 @@ class Room extends Component {
   componentDidMount() {
     const that = this;
     //Session Connection Listeners
+    this.props.storeSession(this.sessionRef.sessionHelper.session);
     this.sessionRef.sessionHelper.session.on("connectionCreated", event => {
       const { addPlayer } = that.props;
       let connections = {};
@@ -33,11 +36,17 @@ class Room extends Component {
     this.sessionRef.sessionHelper.session.on("connectionDestroyed", event => {
       that.props.removePlayer(event.connection.connectionId);
     });
+    this.sessionRef.sessionHelper.session.on("signal:meme", event => {
+      that.props.recievedMemes(event.data);
+    });
     //Broadcasting Listeners
-    this.getReactions();
+    this.reactionListener();
+    // if (timer) {
+    //   this.playGame();
+    // }
   }
 
-  getReactions = () => {
+  reactionListener = () => {
     const that = this;
     const { recieveReactions } = that.props;
     this.sessionRef.sessionHelper.session.on("signal:msg", event => {
@@ -65,6 +74,10 @@ class Room extends Component {
         }
       }
     );
+  };
+
+  playGame = () => {
+    this.props.playGame();
   };
 
   getMyEmotions = () => {
@@ -99,8 +112,8 @@ class Room extends Component {
       <div className="App">
         <Layout className="layout" style={{ height: "100vh" }}>
           <Header style={this.headerStyle}>
-            <Menu theme="dark" mode="horizontal" style={this.menuStyle}>
-              <Menu.Item>
+            <Menu theme="dark" mode="horizontal" style={this.menuStyle} selectedKeys={["home"]}>
+              <Menu.Item key="home">
                 <img src={logo} height="70" width="70" alt="logo" />mème brûlée
               </Menu.Item>
             </Menu>
@@ -131,19 +144,20 @@ class Room extends Component {
                   </OTSession>
                   <button onClick={() => this.getMyEmotions()}>Get My Emotions </button>
                   <button onClick={() => this.sendMyEmotions()}>Broadcast Emotions </button>
+                  <button onClick={() => this.playGame()}>Play Game </button>
                   <div>Current Emotions: {JSON.stringify(currentEmotions)}</div>
                 </div>
               </Col>
               <Col span={8}>
                 <div style={boxStyle}>
                   <center>
-                    <MemeWidget />
+                    <MemeWidget sessionRef={this.sessionRef} />
                   </center>
                 </div>
               </Col>
             </Row>
           </Content>
-          <Footer style={footerStyle}>Reactathon Hackathon © 2018 Created by Aztec Game Lab (Possible chat area)</Footer>
+          <Footer style={footerStyle}>Reactathon Hackathon © 2018 Created by Aztec Game Lab</Footer>
         </Layout>
       </div>
     );
@@ -152,6 +166,7 @@ class Room extends Component {
 
 const mapStateToProps = state => {
   return {
+    session: state.sessionState,
     currentEmotions: selectMyEmotions(state)
   };
 };
@@ -162,7 +177,10 @@ const mapDispatchToProps = dispatch =>
       processImage,
       addPlayer,
       removePlayer,
-      recieveReactions
+      recieveReactions,
+      playGame,
+      storeSession,
+      recievedMemes
     },
     dispatch
   );

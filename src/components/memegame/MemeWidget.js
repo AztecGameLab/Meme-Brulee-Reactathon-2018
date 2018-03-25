@@ -4,14 +4,16 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
 //Components
-import { Button, Input } from "antd";
+import MemeInput from "./MemeInput";
+import MemeStart from "./MemeStart";
+import PresentMeme from "./PresentMeme";
 
 //Actions
-import { fetchMemeTemplates, setRandomTemplate, submitMeme } from "../../features/meme/memeActions";
+import { submitMeme, playGame, GM_PHASES, playAgain } from "../../features/meme/memeActions";
+import { selectCompletedMemes, selectCookingStatus } from "../../features/meme/memeSelectors";
 
 //Selectors
-import { selectCurrentTemplate } from "../../features/meme/memeSelectors";
-import MemeImage from "./MemeImage";
+import { selectCurrentTemplate, selectMemeWasSent, selectCurrentPhase } from "../../features/meme/memeSelectors";
 
 class MemeWidget extends Component {
   state = {
@@ -26,44 +28,66 @@ class MemeWidget extends Component {
   };
 
   handleSubmitMeme = () => {
+    const that = this;
     const { currentTemplate, submitMeme } = this.props;
     const captionObj = this.state;
     const memeParams = Object.assign({}, { template_id: currentTemplate.id }, captionObj);
-    debugger;
-    submitMeme(memeParams);
+    submitMeme(memeParams).then(() => {
+      that.props.session.signal(
+        {
+          type: "meme",
+          data: that.props.completedMemes
+        },
+        error => {
+          if (error) {
+            console.error("Error sending signal:" + error.name, error.message);
+          }
+        }
+      );
+    });
   };
 
   render() {
-    const { fetchMemeTemplates, setRandomTemplate, currentTemplate } = this.props;
-    return (
-      <div>
-        Meme Widge Mini Game Here
-        <Button onClick={fetchMemeTemplates}>get memes</Button>
-        <Button onClick={setRandomTemplate}> select random </Button>
-        {currentTemplate ? <div>{currentTemplate.name}</div> : <div>non selected atm</div>}
-        <Input placeholder="Top Caption..." onChange={e => this.handleCaptionInput(e, "text0")} />
-        <Input placeholder="Bottom Caption..." onChange={e => this.handleCaptionInput(e, "text1")} />
-        <div>{this.state.topCaption}</div>
-        <div>{this.state.bottomCaption}</div>
-        <Button onClick={this.handleSubmitMeme}>Submit Meme</Button>
-        <MemeImage />
-      </div>
-    );
+    const { fetchMemeTemplates, setRandomTemplate, currentTemplate, cookingStatus, memeWasSent, playGame, currentPhase, playAgain } = this.props;
+    let currComponent = <div>?</div>;
+    if (cookingStatus === "finished" && !memeWasSent) {
+      this.handleSubmitMeme();
+    }
+    switch (currentPhase) {
+      case GM_PHASES[0]:
+        currComponent = <MemeStart playGame={playGame} />;
+        break;
+      case GM_PHASES[1]:
+        currComponent = <MemeInput currentTemplate={currentTemplate} handleTop={e => this.handleCaptionInput(e, "text0")} handleBot={e => this.handleCaptionInput(e, "text1")} />;
+        break;
+      case GM_PHASES[2]:
+        currComponent = <PresentMeme playAgain={playAgain} />;
+        break;
+      default:
+        currComponent = <div>Loading...</div>;
+        break;
+    }
+    return <div>{currComponent}</div>;
   }
 }
 
 const mapStateToProps = state => {
   return {
-    currentTemplate: selectCurrentTemplate(state)
+    session: state.sessionState,
+    currentTemplate: selectCurrentTemplate(state),
+    completedMemes: selectCompletedMemes(state),
+    cookingStatus: selectCookingStatus(state),
+    memeWasSent: selectMemeWasSent(state),
+    currentPhase: selectCurrentPhase(state)
   };
 };
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      fetchMemeTemplates,
-      setRandomTemplate,
-      submitMeme
+      submitMeme,
+      playGame,
+      playAgain
     },
     dispatch
   );
