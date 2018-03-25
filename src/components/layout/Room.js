@@ -1,55 +1,95 @@
-import { OTSession, OTPublisher, OTStreams, OTSubscriber } from "opentok-react";
+//React
 import React, { Component } from "react";
-import axios from "axios";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
-import logo from "./../../memelikey.svg";
-import meme from "./../example_meme/pepe.jpg";
+//Actions
+import { processImage, addPlayer, removePlayer, recieveReactions } from "../../features/users/UsersActions";
+import { playGame, recievedMemes } from "../../features/meme/memeActions";
+import { storeSession } from "../../features/session/sessionActions";
+
+//Selectors
+import { selectMyEmotions } from "../../features/users/UserSelectors";
+
+//Logo
+import logo from "../../../src/memelikey.svg";
+
+//Components
+import MemeWidget from "../memegame/MemeWidget";
+import { OTSession, OTPublisher, OTStreams, OTSubscriber } from "opentok-react";
 import { Breadcrumb, Col, Layout, Menu, Row } from "antd";
 const { Header, Content, Footer } = Layout;
 
-function _base64ToArrayBuffer(base64) {
-  var binary_string = window.atob(base64);
-  var len = binary_string.length;
-  var bytes = new Uint8Array(len);
-  for (var i = 0; i < len; i++) {
-    bytes[i] = binary_string.charCodeAt(i);
-  }
-  return bytes.buffer;
-}
-
 class Room extends Component {
-  processImage = () => {
-    const uriBase = "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect";
-    const subscriptionKey = process.env.REACT_APP_FACE_API_KEY;
-    var b64Data = this.publisherRef.getPublisher().getImgData();
-    const imgBuffer = _base64ToArrayBuffer(b64Data);
-    // const imgData = URL.createObjectURL(blob);
-    // Request parameters.
-    var params = {
+  componentDidMount() {
+    const that = this;
+    //Session Connection Listeners
+    this.props.storeSession(this.sessionRef.sessionHelper.session);
+    this.sessionRef.sessionHelper.session.on("connectionCreated", event => {
+      const { addPlayer } = that.props;
+      let connections = {};
+      event.connections.forEach(connection => {
+        connections[connection.connectionId] = {};
+      });
+      addPlayer(connections);
+    });
+    this.sessionRef.sessionHelper.session.on("connectionDestroyed", event => {
+      that.props.removePlayer(event.connection.connectionId);
+    });
+    this.sessionRef.sessionHelper.session.on("signal:meme", event => {
+      that.props.recievedMemes(event.data);
+    });
+    //Broadcasting Listeners
+    this.reactionListener();
+    // if (timer) {
+    //   this.playGame();
+    // }
+  }
+
+  reactionListener = () => {
+    const that = this;
+    const { recieveReactions } = that.props;
+    this.sessionRef.sessionHelper.session.on("signal:msg", event => {
+      const subscriberData = JSON.parse(event.data);
+      let reactionData = {};
+      reactionData[subscriberData.connectionId] = subscriberData.faceData;
+      recieveReactions(reactionData);
+    });
+  };
+
+  sendMyEmotions = () => {
+    const { currentEmotions } = this.props;
+    const { session } = this.sessionRef.sessionHelper;
+    session.signal(
+      {
+        type: "msg",
+        data: JSON.stringify({
+          connectionId: session.connection.connectionId,
+          faceData: currentEmotions
+        })
+      },
+      error => {
+        if (error) {
+          console.error("Error sending signal:" + error.name, error.message);
+        }
+      }
+    );
+  };
+
+  playGame = () => {
+    this.props.playGame();
+  };
+
+  getMyEmotions = () => {
+    const { processImage } = this.props;
+    const b64Data = this.publisherRef.getPublisher().getImgData();
+    const returnOptions = {
       returnFaceId: "true",
       returnFaceLandmarks: "false",
       returnFaceAttributes: "smile,emotion"
     };
-
-    const paramSerialized = Object.keys(params)
-      .map(key => {
-        return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
-      })
-      .join("&");
-
-    const url = uriBase + "?" + paramSerialized;
-    console.log(url);
-    axios({
-      url: url,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/octet-stream",
-        "Ocp-Apim-Subscription-Key": subscriptionKey
-      },
-      data: imgBuffer
-    }).then(response => {
-      console.log(response.data);
-    });
+    const params = Object.assign({}, { b64Data }, returnOptions);
+    processImage(params);
   };
 
   subscriberProperties = {
@@ -66,67 +106,33 @@ class Room extends Component {
     }
   };
 
-  headerStyle = {
-    position: "absolute",
-    overflow: "hidden",
-    height: "64px",
-    width: "100%",
-    top: 0,
-    left: 0
-  };
-
-  menuStyle = {
-    lineHeight: "64px",
-    color: "#fff"
-  };
-
-  contentStyle = {
-    position: "absolute",
-    overflow: "auto",
-    width: "100%",
-    background: "#cccccc",
-    padding: "0 50px",
-    top: 64,
-    bottom: 64
-  };
-
-  breadcrumbStyle = {
-    margin: "16px 0"
-  };
-
-  boxStyle = {
-    height: "75vh",
-    background: "#fff",
-    padding: 24
-  };
-
-  footerStyle = {
-    position: "absolute",
-    overflow: "hidden",
-    height: "64px",
-    width: "100%",
-    left: 0,
-    bottom: 0,
-    textAlign: "center"
-  };
-
   render() {
+    const { currentEmotions } = this.props;
     return (
       <div className="App">
         <Layout className="layout" style={{ height: "100vh" }}>
           <Header style={this.headerStyle}>
-            <Menu theme="dark" mode="horizontal" style={this.menuStyle}>
-              <Menu.Item style={this.menuStyle}>MEMELIKEY</Menu.Item>
+            <Menu theme="dark" mode="horizontal" style={this.menuStyle} selectedKeys={["home"]}>
+              <Menu.Item key="home">
+                <img src={logo} height="70" width="70" alt="logo" />mème brûlée
+              </Menu.Item>
             </Menu>
           </Header>
-          <Content style={this.contentStyle}>
-            <Breadcrumb style={this.breadcrumbStyle}>
+          <Content style={contentStyle}>
+            <Breadcrumb style={breadcrumbStyle}>
               <Breadcrumb.Item>Welcome to the "Variable Name of Room" Room!</Breadcrumb.Item>
             </Breadcrumb>
             <Row type="flex" justify="space-around">
               <Col span={14}>
-                <div style={this.boxStyle}>
-                  <OTSession apiKey={process.env.REACT_APP_API_KEY} sessionId={process.env.REACT_APP_SESSION_ID} token={process.env.REACT_APP_TOKEN_ID}>
+                <div style={boxStyle}>
+                  <OTSession
+                    ref={instance => {
+                      this.sessionRef = instance;
+                    }}
+                    apiKey={process.env.REACT_APP_API_KEY}
+                    sessionId={process.env.REACT_APP_SESSION_ID}
+                    token={process.env.REACT_APP_TOKEN_ID}
+                  >
                     <OTPublisher
                       ref={instance => {
                         this.publisherRef = instance;
@@ -136,24 +142,78 @@ class Room extends Component {
                       <OTSubscriber properties={this.subscriberProperties} eventHandlers={this.subscriberEventHandlers} />
                     </OTStreams>
                   </OTSession>
-                  <button onClick={this.processImage}>Click me </button>
+                  <button onClick={() => this.getMyEmotions()}>Get My Emotions </button>
+                  <button onClick={() => this.sendMyEmotions()}>Broadcast Emotions </button>
+                  <button onClick={() => this.playGame()}>Play Game </button>
+                  <div>Current Emotions: {JSON.stringify(currentEmotions)}</div>
                 </div>
               </Col>
               <Col span={8}>
-                <div style={this.boxStyle}>
+                <div style={boxStyle}>
                   <center>
-                    Meme Template goes here!
-                    <img src={meme} height="80%" width="80%" alt="meme" />
+                    <MemeWidget sessionRef={this.sessionRef} />
                   </center>
                 </div>
               </Col>
             </Row>
           </Content>
-          <Footer style={this.footerStyle}>Reactathon Hackathon © 2018 Created by Aztec Game Lab (Possible chat area)</Footer>
+          <Footer style={footerStyle}>Reactathon Hackathon © 2018 Created by Aztec Game Lab</Footer>
         </Layout>
       </div>
     );
   }
 }
 
-export default Room;
+const mapStateToProps = state => {
+  return {
+    session: state.sessionState,
+    currentEmotions: selectMyEmotions(state)
+  };
+};
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      processImage,
+      addPlayer,
+      removePlayer,
+      recieveReactions,
+      playGame,
+      storeSession,
+      recievedMemes
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(Room);
+
+//Inline Styles
+const contentStyle = {
+  position: "absolute",
+  overflow: "auto",
+  width: "100%",
+  background: "#cccccc",
+  padding: "0 50px",
+  top: 64,
+  bottom: 64
+};
+
+const breadcrumbStyle = {
+  margin: "16px 0"
+};
+
+const boxStyle = {
+  height: "75vh",
+  background: "#fff",
+  padding: 24
+};
+
+const footerStyle = {
+  position: "absolute",
+  overflow: "hidden",
+  height: "64px",
+  width: "100%",
+  left: 0,
+  bottom: 0,
+  textAlign: "center"
+};

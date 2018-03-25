@@ -4,7 +4,6 @@ import registerServiceWorker from "./registerServiceWorker";
 import "antd/dist/antd.css"; // or 'antd/dist/antd.less'
 
 //App
-import MemeWidget from "./components/memegame/MemeWidget";
 import App from "./components/app/App";
 
 //Redux
