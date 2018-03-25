@@ -3,15 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "antd": "^3.3.2",
+    "axios": "^0.18.0",
+    "netlify-lambda": "^0.3.0",
     "opentok-react": "^0.7.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "react-scripts": "1.1.1"
+    "react-redux": "^5.0.7",
+    "react-scripts": "1.1.1",
+    "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0",
+    "reselect": "^3.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:lambda": "netlify-lambda serve /src/functions",
     "build": "react-scripts build",
+    "build:lambda": "netlify-lambda build /src/functions",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "proxy": {
+    "/.netlify/functions": {
+      "target": "http://localhost:9000",
+      "pathRewrite": {
+        "^/\\.netlify/functions": ""
+      }
+    }
   }
 }
