@@ -6,10 +6,9 @@ import { bindActionCreators } from "redux";
 //Components
 import MemeInput from "./MemeInput";
 import MemeStart from "./MemeStart";
-import PresentMeme from "./PresentMeme";
 
 //Actions
-import { submitMeme, playGame, GM_PHASES, playAgain } from "../../features/meme/memeActions";
+import { submitMeme, playGame, GM_PHASES } from "../../features/meme/memeActions";
 import { selectCompletedMemes, selectCookingStatus } from "../../features/meme/memeSelectors";
 
 //Selectors
@@ -56,7 +55,7 @@ class MemeWidget extends Component {
   };
 
   render() {
-    const { currentTemplate, cookingStatus, memeWasSent, playGame, currentPhase, playAgain } = this.props;
+    const { currentTemplate, cookingStatus, memeWasSent, currentPhase } = this.props;
     let currComponent = <div>?</div>;
     if (cookingStatus === "finished" && !memeWasSent) {
       this.handleSubmitMeme();

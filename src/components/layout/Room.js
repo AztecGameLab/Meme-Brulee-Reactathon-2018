@@ -10,17 +10,20 @@ import { storeSession } from "../../features/session/sessionActions";
 import { selectReceivedMemes } from "../../features/meme/memeSelectors";
 
 //Selectors
-import { selectMyEmotions } from "../../features/users/UserSelectors";
 import MemeImage from "./../memegame/MemeImage.js";
 
 //Logo
 import logo from "../../../src/memelikey.svg";
+import netlify from "../../../src/netlify.png";
+
 
 //Components
 import MemeWidget from "../memegame/MemeWidget";
 import { OTSession, OTPublisher, OTStreams, OTSubscriber } from "opentok-react";
 import { Breadcrumb, Col, Layout, Menu, Row } from "antd";
 import PresentMeme from "../memegame/PresentMeme";
+import Emoji from "react-emoji-render";
+
 const { Header, Content, Footer } = Layout;
 
 class Room extends Component {
@@ -51,9 +54,9 @@ class Room extends Component {
         that.setState({ connections });
       }
     });
-    this.sessionRef.sessionHelper.session.on("signal:playGame", event => {
-      that.props.playGame();
-    });
+    // this.sessionRef.sessionHelper.session.on("signal:playGame", event => {
+    //   that.props.playGame();
+    // });
     this.reactionListener();
   }
 
@@ -109,16 +112,12 @@ class Room extends Component {
   };
 
   subscriberEventHandlers = {
-    videoDisabled: event => {
-      console.log("Subscriber video disabled!");
-    },
-    videoEnabled: event => {
-      console.log("Subscriber video enabled!");
-    }
+    videoDisabled: event => {},
+    videoEnabled: event => {}
   };
 
   render() {
-    const { currentEmotion, memesToPresent, playAgain } = this.props;
+    const { memesToPresent, playAgain } = this.props;
     return (
       <div className="App">
         <Layout className="layout" style={{ height: "100vh" }}>
@@ -131,7 +130,7 @@ class Room extends Component {
           </Header>
           <Content style={contentStyle}>
             <Breadcrumb style={breadcrumbStyle}>
-              <Breadcrumb.Item>Welcome!</Breadcrumb.Item>
+              <Breadcrumb.Item>Welcome to our kitchen! We hope you enjoy your stay! :)</Breadcrumb.Item>
             </Breadcrumb>
             <Row type="flex" justify="space-around">
               <Col span={5}>
@@ -153,14 +152,17 @@ class Room extends Component {
                       <OTSubscriber properties={this.subscriberProperties} eventHandlers={this.subscriberEventHandlers} />
                     </OTStreams>
                   </OTSession>
-                  <button onClick={() => this.getMyEmotions()}>Get My Emotions </button>
-                  <button onClick={() => this.sendMyEmotions()}>Broadcast Emotions </button>
-                  <button onClick={() => this.playGame()}>Play Game </button>
                 </div>
               </Col>
               <Col span={13}>
                 <div style={boxStyle}>
-                  <center>{this.props.memesToPresent.length > 0 ? <PresentMeme memesToPresent={memesToPresent} playAgain={playAgain} /> : <MemeImage />}</center>
+                  <center>
+                    {this.props.memesToPresent.length > 0 ? (
+                      <PresentMeme memesToPresent={memesToPresent} playAgain={playAgain} getMyEmotions={this.getMyEmotions} sendMyEmotions={this.sendMyEmotions} />
+                    ) : (
+                      <MemeImage />
+                    )}
+                  </center>
                 </div>
               </Col>
               <Col span={5}>
@@ -172,7 +174,8 @@ class Room extends Component {
               </Col>
             </Row>
           </Content>
-          <Footer style={footerStyle}>Reactathon Hackathon © 2018 Created by Aztec Game Lab</Footer>
+          <Footer style={footerStyle}>Cooked by SDSU Aztec Game Lab | Baked with <img src={netlify} height="20" width="20" alt="Nelify" /> | Reactathon 2018 © 
+          </Footer>
         </Layout>
       </div>
     );
@@ -182,7 +185,6 @@ class Room extends Component {
 const mapStateToProps = state => {
   return {
     session: state.sessionState,
-    currentEmotions: selectMyEmotions(state),
     memesToPresent: selectReceivedMemes(state)
   };
 };
