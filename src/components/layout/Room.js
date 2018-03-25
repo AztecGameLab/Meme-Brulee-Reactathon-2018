@@ -21,6 +21,10 @@ import { Breadcrumb, Col, Layout, Menu, Row } from "antd";
 const { Header, Content, Footer } = Layout;
 
 class Room extends Component {
+  state = {
+    connections: {}
+  };
+
   componentDidMount() {
     const that = this;
     //Session Connection Listeners
@@ -37,7 +41,12 @@ class Room extends Component {
       that.props.removePlayer(event.connection.connectionId);
     });
     this.sessionRef.sessionHelper.session.on("signal:meme", event => {
-      that.props.recievedMemes(event.data);
+      const { connections } = that.state;
+      if (!connections[event.from.id]) {
+        that.props.recievedMemes(event.data);
+        connections[event.from.id] = true;
+        that.setState({ connections });
+      }
     });
     this.sessionRef.sessionHelper.session.on("signal:playGame", event => {
       that.props.playGame();

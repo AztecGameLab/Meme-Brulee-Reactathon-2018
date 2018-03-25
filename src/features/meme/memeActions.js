@@ -151,7 +151,6 @@ export const playGame = () => {
         //Meme post and broadcast your meme (LOCAL)
         //Change Phase for UI
         dispatch({ type: PHASE_CHANGE, payload: GM_PHASES[2] });
-        debugger;
         //Present meme by meme
         // dispatch({type: PRESENT_MEME, payload: })
         //Run ProcessImage

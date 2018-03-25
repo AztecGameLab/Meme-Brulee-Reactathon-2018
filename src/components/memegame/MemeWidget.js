@@ -50,7 +50,7 @@ class MemeWidget extends Component {
   handlePlayGame = () => {
     const { playGame, session } = this.props;
     if (session.signal) {
-      session.signal("playGame");
+      session.signal({ type: "playGame" });
     }
     playGame();
   };
