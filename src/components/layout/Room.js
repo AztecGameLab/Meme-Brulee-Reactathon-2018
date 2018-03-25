@@ -112,7 +112,7 @@ class Room extends Component {
       returnFaceAttributes: "smile,emotion"
     };
     const params = Object.assign({}, { b64Data }, returnOptions);
-    processImage(params);
+    return processImage(params);
   };
 
   CustomPublisher = props => {
@@ -202,7 +202,7 @@ class Room extends Component {
               <Col span={5}>
                 <div style={boxStyle}>
                   <center>
-                    <MemeWidget sessionRef={this.sessionRef} playAgain={playAgain} getMyEmotions={this.getMyEmotions} sendMyEmotions={this.sendMyEmotions}/>
+                    <MemeWidget sessionRef={this.sessionRef} playAgain={playAgain} getMyEmotions={this.getMyEmotions} sendMyEmotions={this.sendMyEmotions} />
                   </center>
                 </div>
               </Col>

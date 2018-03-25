@@ -21,11 +21,13 @@ class EndMemePanel extends Component {
     const { getMyEmotions } = this.props;
     const { sendMyEmotions } = this.props;
 
-    getMyEmotions();
-    sendMyEmotions();
+    getMyEmotions().then(() => {
+      sendMyEmotions();
+    });
     let emotionGauge = setInterval(() => {
-      this.props.getMyEmotions();
-      this.props.sendMyEmotions();
+      this.props.getMyEmotions().then(() => {
+        this.props.sendMyEmotions();
+      });
     }, 6000);
     this.setState({
       emotionTimer: emotionGauge
