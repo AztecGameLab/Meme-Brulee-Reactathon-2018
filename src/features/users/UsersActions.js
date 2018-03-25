@@ -102,15 +102,15 @@ const processImageFailure = error => {
   };
 };
 
-export const addPlayer = connections => {
+export const addPlayer = player => {
   return dispatch => {
-    dispatch({ type: ADD_PLAYER, payload: connections });
+    dispatch({ type: ADD_PLAYER, payload: player });
   };
 };
 
-export const removePlayer = playerName => {
+export const removePlayer = playerId => {
   return dispatch => {
-    dispatch({ type: REMOVE_PLAYER, payload: playerName });
+    dispatch({ type: REMOVE_PLAYER, payload: playerId });
   };
 };
 
@@ -124,11 +124,13 @@ export const aggregateEmotions = () => {
   return (dispatch, getState) => {
     const players = selectPlayers(getState());
     let emotionMap = selectEmojiMap(getState());
-    Object.keys(players).map(connectionID => {
-      Object.keys(players[connectionID]).forEach((emotion, idx) => {
-        if (idx !== 6) {
-          let emotionVal = Math.floor(players[connectionID][emotion] * 50);
-          emotionMap[idx].val += emotionVal;
+    Object.keys(players).map(playerID => {
+      Object.keys(players[playerID]).forEach((emotion, idx) => {
+        if (emotion !== "name") {
+          if (idx !== 6) {
+            let emotionVal = Math.floor(players[playerID][emotion] * 50);
+            emotionMap[idx].val += emotionVal;
+          }
         }
       });
     });

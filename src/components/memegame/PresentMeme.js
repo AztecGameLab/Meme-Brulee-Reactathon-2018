@@ -31,7 +31,11 @@ class PresentMeme extends Component {
   render() {
     const { memesToPresent, playAgain, emojiObj } = this.props;
     const imageList = memesToPresent.map(meme => {
-      return <img key={meme.url} src={meme.url} alt="Loading Your Friends' Memes" />;
+      return (
+        <div>{this.props.player}
+          <img key={meme.url} src={meme.url} alt="Loading Your Friends' Memes" />;
+        </div>
+      );
     });
     const emojiList = emojiObj.map(emotion => {
       return <Emoji key={emotion.emoji} text={emotion.emoji + " " + emotion.val} />;
@@ -48,8 +52,9 @@ class PresentMeme extends Component {
 
 const mapStateToProps = state => {
   return {
+    player: state.userState,
     memesToPresent: selectReceivedMemes(state),
-    emojiObj: selectEmojiMap(state),
+    emojiObj: selectEmojiMap(state)
   };
 };
 

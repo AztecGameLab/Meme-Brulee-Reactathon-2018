@@ -27,30 +27,40 @@ const { Header, Content, Footer } = Layout;
 
 class Room extends Component {
   state = {
-    connections: {}
+    players: {}
   };
 
   componentDidMount() {
     const that = this;
     //Session Connection Listeners
     this.props.storeSession(this.sessionRef.sessionHelper.session);
-    this.sessionRef.sessionHelper.session.on("connectionCreated", event => {
+    if (this.publisherRef) {
       const { addPlayer } = that.props;
-      let connections = {};
-      event.connections.forEach(connection => {
-        connections[connection.connectionId] = {};
-      });
-      addPlayer(connections);
+      const player = {
+        [this.publisherRef.publisherId]: {
+          name: this.publisherProperties.name
+        }
+      };
+      addPlayer(player);
+    }
+    this.sessionRef.sessionHelper.session.on("streamCreated", event => {
+      const { addPlayer } = that.props;
+      const player = {
+        [event.stream.id]: {
+          name: event.stream.name
+        }
+      };
+      addPlayer(player);
     });
-    this.sessionRef.sessionHelper.session.on("connectionDestroyed", event => {
-      that.props.removePlayer(event.connection.connectionId);
+    this.sessionRef.sessionHelper.session.on("streamDestroyed", event => {
+      that.props.removePlayer(event.stream.id);
     });
     this.sessionRef.sessionHelper.session.on("signal:meme", event => {
-      const { connections } = that.state;
-      if (!connections[event.from.id]) {
+      const { players } = that.state;
+      if (!players[event.from.id]) {
         that.props.recievedMemes(event.data);
-        connections[event.from.id] = true;
-        that.setState({ connections });
+        players[event.from.id] = true;
+        that.setState({ players });
       }
     });
     // this.sessionRef.sessionHelper.session.on("signal:playGame", event => {
@@ -65,7 +75,7 @@ class Room extends Component {
     this.sessionRef.sessionHelper.session.on("signal:msg", event => {
       const subscriberData = JSON.parse(event.data);
       let reactionData = {};
-      reactionData[subscriberData.connectionId] = subscriberData.faceData;
+      reactionData[subscriberData.playerId] = subscriberData.faceData;
       recieveReactions(reactionData);
     });
   };
@@ -77,7 +87,7 @@ class Room extends Component {
       {
         type: "msg",
         data: JSON.stringify({
-          connectionId: session.connection.connectionId,
+          playerId: this.publisherProperties.name,
           faceData: currentEmotions
         })
       },
@@ -105,9 +115,38 @@ class Room extends Component {
     processImage(params);
   };
 
+  CustomPublisher = props => {
+    const that = this;
+    return (
+      <div>
+        <OTPublisher
+          session={props.session}
+          properties={this.publisherProperties}
+          ref={instance => {
+            this.publisherRef = instance;
+          }}
+        />
+        {this.publisherProperties.name}
+      </div>
+    );
+  };
+
+  CustomSubscriber = props => {
+    return (
+      <div>
+        <OTSubscriber key={props.stream.id} session={props.session} stream={props.stream} properties={this.subscriberProperties} eventHandlers={this.subscriberEventHandlers} />
+        {props.stream.name}
+      </div>
+    );
+  };
+
+  publisherProperties = {
+    name: this.props.publisherName
+  };
+
   subscriberProperties = {
     preferredFrameRate: 15,
-    showControls: false
+    showControls: true
   };
 
   subscriberEventHandlers = {
@@ -142,13 +181,9 @@ class Room extends Component {
                     sessionId={process.env.REACT_APP_SESSION_ID}
                     token={process.env.REACT_APP_TOKEN_ID}
                   >
-                    <OTPublisher
-                      ref={instance => {
-                        this.publisherRef = instance;
-                      }}
-                    />
+                    <this.CustomPublisher />
                     <OTStreams>
-                      <OTSubscriber properties={this.subscriberProperties} eventHandlers={this.subscriberEventHandlers} />
+                      <this.CustomSubscriber />
                     </OTStreams>
                   </OTSession>
                 </div>
@@ -173,7 +208,17 @@ class Room extends Component {
               </Col>
             </Row>
           </Content>
-          <Footer style={footerStyle}>Cooked by <a href="https://github.com/AztecGameLab"> SDSU Aztec Game Lab </a>| Baked <a href="https://www.netlify.com/"> with <img src={netlify} height="20" width="20" alt="Nelify" /></a> | Coming at ya live <a href="https://tokbox.com/"> with <img src={tokbox} height="20" width="20" alt="Nelify" /> </a>| <a href="https://www.reactathon.com/">Reactathon 2018 © </a> 
+          <Footer style={footerStyle}>
+            Cooked by <a href="https://github.com/AztecGameLab"> SDSU Aztec Game Lab </a>| Baked{" "}
+            <a href="https://www.netlify.com/">
+              {" "}
+              with <img src={netlify} height="20" width="20" alt="Nelify" />
+            </a>{" "}
+            | Coming at ya live{" "}
+            <a href="https://tokbox.com/">
+              {" "}
+              with <img src={tokbox} height="20" width="20" alt="Nelify" />{" "}
+            </a>| <a href="https://www.reactathon.com/">Reactathon 2018 © </a>
           </Footer>
         </Layout>
       </div>
