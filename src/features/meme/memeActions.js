@@ -10,19 +10,18 @@ import {
   PHASE_CHANGE,
   COOK_TIME_IS_UP,
   RECEIVED_MEMES,
-  PRESENT_MEME,
   START_COOK
 } from "./memeConstants";
 
 //Selectors
-import { selectAllTemplates, selectReceivedMemes } from "./memeSelectors";
+import { selectAllTemplates } from "./memeSelectors";
 
 //Requests
 import axios from "axios";
 
 //Game Settings
 export const GM_PHASES = ["idle", "cooking the memes", "presentation"];
-const GM_TIME_INTERVALS = { cook_time: 20000, present_time: 8000 };
+const GM_TIME_INTERVALS = { cook_time: 3000, present_time: 8000 };
 
 //Imgflip API Calls
 const template_fetch = () => {
@@ -152,7 +151,6 @@ export const playGame = () => {
         //Meme post and broadcast your meme (LOCAL)
         //Change Phase for UI
         dispatch({ type: PHASE_CHANGE, payload: GM_PHASES[2] });
-        debugger;
         //Present meme by meme
         // dispatch({type: PRESENT_MEME, payload: })
         //Run ProcessImage

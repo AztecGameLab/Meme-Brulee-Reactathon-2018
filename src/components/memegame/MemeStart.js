@@ -1,13 +1,24 @@
 import React from "react";
 
-import { Button } from "antd";
+//Components
+import { Button, Icon } from "antd";
+import logo from "../../../src/memelikey.svg";
 
 const MemeStart = props => {
   return (
     <div>
-      <h1>Game Starting Page</h1>
+      <img src={logo} height="140" width="140" alt="logo" />
+      <h1>Get ready to cook!</h1>
+      <p>Welcome to Aztec Game Lab's Memeathon!</p>
+      <p>You will be playing a game where you caption a random meme!</p>
       <p>Once everyone is ready, click play!</p>
-      <Button onClick={props.playGame}>Start Game</Button>
+      <br />
+      <br />
+      <br />
+      <br />
+      <Button type="primary" onClick={props.playGame} size="large">
+        Start Game<Icon type="check" />
+      </Button>
     </div>
   );
 };

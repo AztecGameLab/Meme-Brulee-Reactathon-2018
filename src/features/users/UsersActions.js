@@ -1,7 +1,10 @@
 //Constants
-import { PROCESS_IMAGE_LOADING, PROCESS_IMAGE_SUCCESS, PROCESS_IMAGE_FAILURE, ADD_PLAYER, REMOVE_PLAYER, RECIEVE_REACTIONS } from "./UserConstants";
+import { PROCESS_IMAGE_LOADING, PROCESS_IMAGE_SUCCESS, PROCESS_IMAGE_FAILURE, ADD_PLAYER, REMOVE_PLAYER, RECIEVE_REACTIONS, AGGREGATE_EMOJIS } from "./UserConstants";
 
 import axios from "axios";
+
+//Selectors
+import { selectPlayers, selectEmojiMap } from "./UserSelectors";
 
 //Microsoft Face API
 const face_api_process = params => {
@@ -33,15 +36,17 @@ const face_api_process = params => {
       sadness: 0,
       surprise: 0
     };
-    tempFaceData.forEach(face => {
-      finalFaceData.smile += face.faceAttributes.smile;
-      Object.keys(face.faceAttributes.emotion).forEach(emotion => {
-        finalFaceData[emotion] += face.faceAttributes.emotion[emotion];
+    if (Object.keys(tempFaceData).length > 0) {
+      tempFaceData.forEach(face => {
+        finalFaceData.smile += face.faceAttributes.smile;
+        Object.keys(face.faceAttributes.emotion).forEach(emotion => {
+          finalFaceData[emotion] += face.faceAttributes.emotion[emotion];
+        });
       });
-    });
-    Object.keys(finalFaceData).forEach(emotion => {
-      return (finalFaceData[emotion] /= numFaces);
-    });
+      Object.keys(finalFaceData).forEach(emotion => {
+        return (finalFaceData[emotion] /= numFaces);
+      });
+    }
     return finalFaceData;
   });
 };
@@ -69,8 +74,13 @@ export const processImage = params => {
   return dispatch => {
     dispatch({ type: PROCESS_IMAGE_LOADING });
     return face_api_process(params)
-      .then(emotionData => dispatch(processImageSuccess(emotionData)))
-      .catch(error => dispatch(processImageFailure(error)));
+      .then(emotionData => {
+        dispatch(processImageSuccess(emotionData));
+        dispatch(aggregateEmotions());
+      })
+      .catch(error => {
+        dispatch(processImageFailure(error));
+      });
   };
 };
 
@@ -92,20 +102,38 @@ const processImageFailure = error => {
   };
 };
 
-export const addPlayer = connections => {
+export const addPlayer = player => {
   return dispatch => {
-    dispatch({ type: ADD_PLAYER, payload: connections });
+    dispatch({ type: ADD_PLAYER, payload: player });
   };
 };
 
-export const removePlayer = playerName => {
+export const removePlayer = playerId => {
   return dispatch => {
-    dispatch({ type: REMOVE_PLAYER, payload: playerName });
+    dispatch({ type: REMOVE_PLAYER, payload: playerId });
   };
 };
 
 export const recieveReactions = reactionData => {
   return dispatch => {
     dispatch({ type: RECIEVE_REACTIONS, payload: reactionData });
+  };
+};
+
+export const aggregateEmotions = () => {
+  return (dispatch, getState) => {
+    const players = selectPlayers(getState());
+    let emotionMap = selectEmojiMap(getState());
+    Object.keys(players).map(playerID => {
+      Object.keys(players[playerID]).forEach((emotion, idx) => {
+        if (emotion !== "name") {
+          if (idx !== 6) {
+            let emotionVal = Math.floor(players[playerID][emotion] * 50);
+            emotionMap[idx].val += emotionVal;
+          }
+        }
+      });
+    });
+    dispatch({ type: AGGREGATE_EMOJIS, payload: emotionMap });
   };
 };

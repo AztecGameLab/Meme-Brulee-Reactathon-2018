@@ -6,10 +6,10 @@ import { bindActionCreators } from "redux";
 //Components
 import MemeInput from "./MemeInput";
 import MemeStart from "./MemeStart";
-import PresentMeme from "./PresentMeme";
+import EndMemePanel from "./EndMemePanel";
 
 //Actions
-import { submitMeme, playGame, GM_PHASES, playAgain } from "../../features/meme/memeActions";
+import { submitMeme, playGame, GM_PHASES } from "../../features/meme/memeActions";
 import { selectCompletedMemes, selectCookingStatus } from "../../features/meme/memeSelectors";
 
 //Selectors
@@ -17,8 +17,8 @@ import { selectCurrentTemplate, selectMemeWasSent, selectCurrentPhase } from "..
 
 class MemeWidget extends Component {
   state = {
-    text0: "",
-    text1: ""
+    text0: " ",
+    text1: " "
   };
 
   handleCaptionInput = (e, caption) => {
@@ -47,21 +47,29 @@ class MemeWidget extends Component {
     });
   };
 
+  handlePlayGame = () => {
+    const { playGame, session } = this.props;
+    if (session.signal) {
+      session.signal({ type: "playGame" });
+    }
+    playGame();
+  };
+
   render() {
-    const { fetchMemeTemplates, setRandomTemplate, currentTemplate, cookingStatus, memeWasSent, playGame, currentPhase, playAgain } = this.props;
+    const { currentTemplate, cookingStatus, memeWasSent, currentPhase, getMyEmotions, sendMyEmotions, playAgain } = this.props;
     let currComponent = <div>?</div>;
     if (cookingStatus === "finished" && !memeWasSent) {
       this.handleSubmitMeme();
     }
     switch (currentPhase) {
       case GM_PHASES[0]:
-        currComponent = <MemeStart playGame={playGame} />;
+        currComponent = <MemeStart playGame={this.handlePlayGame} />;
         break;
       case GM_PHASES[1]:
         currComponent = <MemeInput currentTemplate={currentTemplate} handleTop={e => this.handleCaptionInput(e, "text0")} handleBot={e => this.handleCaptionInput(e, "text1")} />;
         break;
       case GM_PHASES[2]:
-        currComponent = <PresentMeme playAgain={playAgain} />;
+        currComponent = <EndMemePanel playAgain={playAgain} getMyEmotions={getMyEmotions} sendMyEmotions={sendMyEmotions} />;
         break;
       default:
         currComponent = <div>Loading...</div>;
@@ -86,8 +94,7 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       submitMeme,
-      playGame,
-      playAgain
+      playGame
     },
     dispatch
   );

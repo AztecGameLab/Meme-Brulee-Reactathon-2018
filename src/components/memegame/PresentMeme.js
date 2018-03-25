@@ -1,21 +1,25 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
-import { Carousel, Button } from "antd";
+//Components
+import { Carousel } from "antd";
 
 //Selectors
 import { selectReceivedMemes } from "../../features/meme/memeSelectors";
 
 class PresentMeme extends Component {
   render() {
-    const { memesToPresent, playAgain } = this.props;
+    const { memesToPresent } = this.props;
     const imageList = memesToPresent.map(meme => {
-      return <img key={meme.url} src={meme.url} alt="Loading Your Friends' Memes" />;
+      return (
+        <div key={meme.url}>
+          <img key={meme.url} src={meme.url} alt="Loading Your Friends' Memes" />;
+        </div>
+      );
     });
     return (
       <div>
         <Carousel autoplay>{imageList}</Carousel>
-        <Button onClick={playAgain}> Play Again</Button>
       </div>
     );
   }
@@ -23,7 +27,8 @@ class PresentMeme extends Component {
 
 const mapStateToProps = state => {
   return {
-    memesToPresent: selectReceivedMemes(state)
+    memesToPresent: selectReceivedMemes(state),
+    player: state.userState
   };
 };
 
