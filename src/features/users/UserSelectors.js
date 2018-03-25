@@ -5,5 +5,5 @@ const getMyEmotions = state => state.usersState.currentEmotionData;
 
 //Memoized Selectors
 export const selectMyEmotions = createSelector([getMyEmotions], emotions => {
-  return emotions[0];
+  return emotions;
 });

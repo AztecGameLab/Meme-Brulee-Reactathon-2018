@@ -4,7 +4,9 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
 //Actions
-import { processImage } from "../../features/users/UsersActions";
+import { processImage, addPlayer, removePlayer, recieveReactions } from "../../features/users/UsersActions";
+import { playGame, recievedMemes } from "../../features/meme/memeActions";
+import { storeSession } from "../../features/session/sessionActions";
 
 //Selectors
 import { selectMyEmotions } from "../../features/users/UserSelectors";
@@ -20,42 +22,47 @@ import { Breadcrumb, Col, Layout, Menu, Row } from "antd";
 const { Header, Content, Footer } = Layout;
 
 class Room extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      connections: {}
-    };
-  }
+  state = {
+    connections: {}
+  };
 
   componentDidMount() {
     const that = this;
+    //Session Connection Listeners
+    this.props.storeSession(this.sessionRef.sessionHelper.session);
     this.sessionRef.sessionHelper.session.on("connectionCreated", event => {
-      let { connections } = that.state;
+      const { addPlayer } = that.props;
+      let connections = {};
       event.connections.forEach(connection => {
         connections[connection.connectionId] = {};
       });
-      that.setState({ connections });
+      addPlayer(connections);
     });
     this.sessionRef.sessionHelper.session.on("connectionDestroyed", event => {
-      let { connections } = that.state;
-      delete connections[event.connections.connectionId];
-      that.setState({
-        connections
-      });
+      that.props.removePlayer(event.connection.connectionId);
     });
-    this.getReactions();
+    this.sessionRef.sessionHelper.session.on("signal:meme", event => {
+      const { connections } = that.state;
+      if (!connections[event.from.id]) {
+        that.props.recievedMemes(event.data);
+        connections[event.from.id] = true;
+        that.setState({ connections });
+      }
+    });
+    this.sessionRef.sessionHelper.session.on("signal:playGame", event => {
+      that.props.playGame();
+    });
+    this.reactionListener();
   }
 
-  getReactions = () => {
+  reactionListener = () => {
     const that = this;
+    const { recieveReactions } = that.props;
     this.sessionRef.sessionHelper.session.on("signal:msg", event => {
       const subscriberData = JSON.parse(event.data);
-      const { connections } = that.state;
-      connections[subscriberData.connectionId] = subscriberData.faceData;
-      that.setState({
-        connections
-      });
+      let reactionData = {};
+      reactionData[subscriberData.connectionId] = subscriberData.faceData;
+      recieveReactions(reactionData);
     });
   };
 
@@ -76,6 +83,10 @@ class Room extends Component {
         }
       }
     );
+  };
+
+  playGame = () => {
+    this.props.playGame();
   };
 
   getMyEmotions = () => {
@@ -110,8 +121,8 @@ class Room extends Component {
       <div className="App">
         <Layout className="layout" style={{ height: "100vh" }}>
           <Header style={this.headerStyle}>
-            <Menu theme="dark" mode="horizontal" style={this.menuStyle}>
-              <Menu.Item>
+            <Menu theme="dark" mode="horizontal" style={this.menuStyle} selectedKeys={["home"]}>
+              <Menu.Item key="home">
                 <img src={logo} height="70" width="70" alt="logo" />mème brûlée
               </Menu.Item>
             </Menu>
@@ -142,6 +153,7 @@ class Room extends Component {
                   </OTSession>
                   <button onClick={() => this.getMyEmotions()}>Get My Emotions </button>
                   <button onClick={() => this.sendMyEmotions()}>Broadcast Emotions </button>
+                  <button onClick={() => this.playGame()}>Play Game </button>
                   <div>Current Emotions: {JSON.stringify(currentEmotions)}</div>
                 </div>
               </Col>
@@ -155,7 +167,7 @@ class Room extends Component {
               <Col span={5}>
                 <div style={boxStyle}>
                   <center>
-                    <MemeWidget />
+                    <MemeWidget sessionRef={this.sessionRef} />
                   </center>
                 </div>
               </Col>
@@ -170,6 +182,7 @@ class Room extends Component {
 
 const mapStateToProps = state => {
   return {
+    session: state.sessionState,
     currentEmotions: selectMyEmotions(state)
   };
 };
@@ -177,7 +190,13 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      processImage
+      processImage,
+      addPlayer,
+      removePlayer,
+      recieveReactions,
+      playGame,
+      storeSession,
+      recievedMemes
     },
     dispatch
   );
@@ -185,20 +204,6 @@ const mapDispatchToProps = dispatch =>
 export default connect(mapStateToProps, mapDispatchToProps)(Room);
 
 //Inline Styles
-const headerStyle = {
-  position: "absolute",
-  overflow: "hidden",
-  height: "64px",
-  width: "100%",
-  top: 0,
-  left: 0
-};
-
-const menuStyle = {
-  lineHeight: "64px",
-  color: "#fff"
-};
-
 const contentStyle = {
   position: "absolute",
   width: "100%",
