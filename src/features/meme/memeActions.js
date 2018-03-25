@@ -21,7 +21,7 @@ import axios from "axios";
 
 //Game Settings
 export const GM_PHASES = ["idle", "cooking the memes", "presentation"];
-const GM_TIME_INTERVALS = { cook_time: 20000, present_time: 8000 };
+const GM_TIME_INTERVALS = { cook_time: 5000, present_time: 8000 };
 
 //Imgflip API Calls
 const template_fetch = () => {

@@ -3,44 +3,20 @@ import { connect } from "react-redux";
 
 //Components
 import { Carousel, Button } from "antd";
-import Emoji from "react-emoji-render";
 
 //Selectors
 import { selectReceivedMemes } from "../../features/meme/memeSelectors";
-import { selectEmojiMap } from "../../features/users/UserSelectors";
 
 class PresentMeme extends Component {
-  state = {
-    emotionTimer: null
-  };
-
-  componentDidMount() {
-    const { getMyEmotions, sendMyEmotions } = this.props;
-    let emotionGauge = setInterval(() => {
-      getMyEmotions();
-      sendMyEmotions();
-    }, 3000);
-    this.setState({
-      emotionTimer: emotionGauge
-    });
-  }
-  componentWillUnmount() {
-    this.clearInterval(this.state.emotionTimer);
-  }
-
   render() {
-    const { memesToPresent, playAgain, emojiObj } = this.props;
+    const { memesToPresent, playAgain } = this.props;
     const imageList = memesToPresent.map(meme => {
       return <img key={meme.url} src={meme.url} alt="Loading Your Friends' Memes" />;
-    });
-    const emojiList = emojiObj.map(emotion => {
-      return <Emoji key={emotion.emoji} text={emotion.emoji + " " + emotion.val} />;
     });
     return (
       <div>
         <Carousel autoplay>{imageList}</Carousel>
         <Button onClick={playAgain}> Play Again</Button>
-        <span>{emojiList}</span>
       </div>
     );
   }
@@ -48,8 +24,7 @@ class PresentMeme extends Component {
 
 const mapStateToProps = state => {
   return {
-    memesToPresent: selectReceivedMemes(state),
-    emojiObj: selectEmojiMap(state),
+    memesToPresent: selectReceivedMemes(state)
   };
 };
 
