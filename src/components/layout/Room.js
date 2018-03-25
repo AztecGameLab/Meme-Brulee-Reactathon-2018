@@ -116,7 +116,7 @@ class Room extends Component {
         <Layout className="layout" style={{ height: "100vh" }}>
           <Header style={this.headerStyle}>
             <Menu theme="dark" mode="horizontal" style={this.menuStyle}>
-              <Menu.Item style={this.menuStyle}>MEMELIKEY</Menu.Item>
+              <Menu.Item><img src={logo} height="70" width="70" alt="logo" />MEMELIKEY</Menu.Item>
             </Menu>
           </Header>
           <Content style={this.contentStyle}>
