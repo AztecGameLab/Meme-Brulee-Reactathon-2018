@@ -1,7 +1,7 @@
 import { OTSession, OTPublisher, OTStreams, OTSubscriber } from "opentok-react";
 import React, { Component } from "react";
 import axios from "axios";
-
+import MemeWidget from "../memegame/MemeWidget";
 import logo from "./../../memelikey.svg";
 import meme from "./../example_meme/pepe.jpg";
 import { Breadcrumb, Col, Layout, Menu, Row } from "antd";
@@ -214,8 +214,7 @@ class Room extends Component {
               <Col span={8}>
                 <div style={this.boxStyle}>
                   <center>
-                    Meme Template goes here!
-                    <img src={meme} height="80%" width="80%" alt="meme" />
+                    <MemeWidget />
                   </center>
                 </div>
               </Col>
