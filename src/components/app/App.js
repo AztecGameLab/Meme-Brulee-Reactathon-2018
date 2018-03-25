@@ -9,7 +9,6 @@ class App extends Component {
   };
 
   handleUsername = data => {
-    debugger;
     this.setState({
       publisherName: data.target.value
     });

@@ -202,7 +202,7 @@ class Room extends Component {
               <Col span={5}>
                 <div style={boxStyle}>
                   <center>
-                    <MemeWidget sessionRef={this.sessionRef} />
+                    <MemeWidget sessionRef={this.sessionRef} playAgain={playAgain} getMyEmotions={this.getMyEmotions} sendMyEmotions={this.sendMyEmotions}/>
                   </center>
                 </div>
               </Col>
