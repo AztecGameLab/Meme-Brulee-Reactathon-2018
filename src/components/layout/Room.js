@@ -39,11 +39,10 @@ class Room extends Component {
     this.sessionRef.sessionHelper.session.on("signal:meme", event => {
       that.props.recievedMemes(event.data);
     });
-    //Broadcasting Listeners
+    this.sessionRef.sessionHelper.session.on("signal:playGame", event => {
+      that.props.playGame();
+    });
     this.reactionListener();
-    // if (timer) {
-    //   this.playGame();
-    // }
   }
 
   reactionListener = () => {

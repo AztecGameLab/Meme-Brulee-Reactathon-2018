@@ -10,12 +10,11 @@ import {
   PHASE_CHANGE,
   COOK_TIME_IS_UP,
   RECEIVED_MEMES,
-  PRESENT_MEME,
   START_COOK
 } from "./memeConstants";
 
 //Selectors
-import { selectAllTemplates, selectReceivedMemes } from "./memeSelectors";
+import { selectAllTemplates } from "./memeSelectors";
 
 //Requests
 import axios from "axios";

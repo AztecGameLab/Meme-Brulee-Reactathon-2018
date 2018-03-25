@@ -47,15 +47,23 @@ class MemeWidget extends Component {
     });
   };
 
+  handlePlayGame = () => {
+    const { playGame, session } = this.props;
+    if (session.signal) {
+      session.signal("playGame");
+    }
+    playGame();
+  };
+
   render() {
-    const { fetchMemeTemplates, setRandomTemplate, currentTemplate, cookingStatus, memeWasSent, playGame, currentPhase, playAgain } = this.props;
+    const { currentTemplate, cookingStatus, memeWasSent, playGame, currentPhase, playAgain } = this.props;
     let currComponent = <div>?</div>;
     if (cookingStatus === "finished" && !memeWasSent) {
       this.handleSubmitMeme();
     }
     switch (currentPhase) {
       case GM_PHASES[0]:
-        currComponent = <MemeStart playGame={playGame} />;
+        currComponent = <MemeStart playGame={this.handlePlayGame} />;
         break;
       case GM_PHASES[1]:
         currComponent = <MemeInput currentTemplate={currentTemplate} handleTop={e => this.handleCaptionInput(e, "text0")} handleBot={e => this.handleCaptionInput(e, "text1")} />;
