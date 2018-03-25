@@ -27,7 +27,7 @@ class App extends Component {
 
   processImage = () => {
     const uriBase = "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect";
-    const subscriptionKey = "be1829ee303445fc93097146f9454cfa";
+    const subscriptionKey = process.env.REACT_APP_FACE_API_KEY;
     var b64Data = this.publisherRef.getPublisher().getImgData();
     const imgBuffer = _base64ToArrayBuffer(b64Data);
     // const imgData = URL.createObjectURL(blob);
