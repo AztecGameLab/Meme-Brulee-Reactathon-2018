@@ -1,7 +1,5 @@
 import React, { Component } from "react";
 import { OTSession, OTPublisher, OTStreams, OTSubscriber } from "opentok-react";
-import logo from "./logo.svg";
-import "./App.css";
 import axios from "axios";
 
 function _base64ToArrayBuffer(base64) {
