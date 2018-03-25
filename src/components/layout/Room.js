@@ -18,6 +18,70 @@ function _base64ToArrayBuffer(base64) {
 }
 
 class Room extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      connections: {}
+    };
+  }
+
+  componentDidMount() {
+    const that = this;
+    this.sessionRef.sessionHelper.session.on("connectionCreated", event => {
+      let { connections } = that.state;
+      event.connections.forEach(connection => {
+        connections[connection.connectionId] = {};
+      });
+      that.setState({ connections });
+    });
+    this.sessionRef.sessionHelper.session.on("connectionDestroyed", event => {
+      let { connections } = that.state;
+      delete connections[event.connections.connectionId];
+      that.setState({
+        connections
+      });
+    });
+    this.getReactions();
+  }
+
+  getReactions = () => {
+    const that = this;
+    this.sessionRef.sessionHelper.session.on("signal:msg", event => {
+      const subscriberData = JSON.parse(event.data);
+      const { connections } = that.state;
+      connections[subscriberData.connectionId] = subscriberData.faceData;
+      that.setState({
+        connections
+      });
+    });
+  };
+
+  sendReactions = () => {
+    const that = this;
+    this.processImage().then(data => {
+      const { session } = that.sessionRef.sessionHelper;
+      session.signal(
+        {
+          type: "msg",
+          data: JSON.stringify({
+            connectionId: session.connection.connectionId,
+            faceData: data
+          })
+        },
+        error => {
+          if (error) {
+            console.error("Error sending signal:" + error.name, error.message);
+          }
+        }
+      );
+    });
+  };
+
+  connectionOnInit(target, props) {
+    debugger;
+  }
+
   processImage = () => {
     const uriBase = "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect";
     const subscriptionKey = process.env.REACT_APP_FACE_API_KEY;
@@ -39,7 +103,7 @@ class Room extends Component {
 
     const url = uriBase + "?" + paramSerialized;
     console.log(url);
-    axios({
+    return axios({
       url: url,
       method: "POST",
       headers: {
@@ -48,7 +112,7 @@ class Room extends Component {
       },
       data: imgBuffer
     }).then(response => {
-      console.log(response.data);
+      return response.data;
     });
   };
 
@@ -126,7 +190,14 @@ class Room extends Component {
             <Row type="flex" justify="space-around">
               <Col span={14}>
                 <div style={this.boxStyle}>
-                  <OTSession apiKey={process.env.REACT_APP_API_KEY} sessionId={process.env.REACT_APP_SESSION_ID} token={process.env.REACT_APP_TOKEN_ID}>
+                  <OTSession
+                    ref={instance => {
+                      this.sessionRef = instance;
+                    }}
+                    apiKey={process.env.REACT_APP_API_KEY}
+                    sessionId={process.env.REACT_APP_SESSION_ID}
+                    token={process.env.REACT_APP_TOKEN_ID}
+                  >
                     <OTPublisher
                       ref={instance => {
                         this.publisherRef = instance;
@@ -136,7 +207,8 @@ class Room extends Component {
                       <OTSubscriber properties={this.subscriberProperties} eventHandlers={this.subscriberEventHandlers} />
                     </OTStreams>
                   </OTSession>
-                  <button onClick={this.processImage}>Click me </button>
+                  <button onClick={() => this.processImage()}>Click me </button>
+                  <button onClick={() => this.sendReactions()}>Find reactions </button>
                 </div>
               </Col>
               <Col span={8}>
