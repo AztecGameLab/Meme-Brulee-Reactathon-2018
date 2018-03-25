@@ -8,6 +8,7 @@ import { processImage } from "../../features/users/UsersActions";
 
 //Selectors
 import { selectMyEmotions } from "../../features/users/UserSelectors";
+import MemeImage from "./../memegame/MemeImage.js";
 
 //Logo
 import logo from "../../../src/memelikey.svg";
@@ -117,10 +118,10 @@ class Room extends Component {
           </Header>
           <Content style={contentStyle}>
             <Breadcrumb style={breadcrumbStyle}>
-              <Breadcrumb.Item>Welcome to the "Variable Name of Room" Room!</Breadcrumb.Item>
+              <Breadcrumb.Item>Welcome!</Breadcrumb.Item>
             </Breadcrumb>
             <Row type="flex" justify="space-around">
-              <Col span={14}>
+              <Col span={5}>
                 <div style={boxStyle}>
                   <OTSession
                     ref={instance => {
@@ -144,7 +145,14 @@ class Room extends Component {
                   <div>Current Emotions: {JSON.stringify(currentEmotions)}</div>
                 </div>
               </Col>
-              <Col span={8}>
+              <Col span={13}>
+                <div style={boxStyle}>
+                  <center>
+                    <MemeImage />
+                  </center>
+                </div>
+              </Col>
+              <Col span={5}>
                 <div style={boxStyle}>
                   <center>
                     <MemeWidget />
@@ -153,7 +161,7 @@ class Room extends Component {
               </Col>
             </Row>
           </Content>
-          <Footer style={footerStyle}>Reactathon Hackathon © 2018 Created by Aztec Game Lab (Possible chat area)</Footer>
+          <Footer style={footerStyle}>Reactathon Hackathon © 2018 Created by Aztec Game Lab</Footer>
         </Layout>
       </div>
     );
@@ -193,7 +201,6 @@ const menuStyle = {
 
 const contentStyle = {
   position: "absolute",
-  overflow: "auto",
   width: "100%",
   background: "#cccccc",
   padding: "0 50px",
@@ -202,11 +209,13 @@ const contentStyle = {
 };
 
 const breadcrumbStyle = {
+  textAlign: 'center',
   margin: "16px 0"
 };
 
 const boxStyle = {
   height: "75vh",
+  width: "100%",
   background: "#fff",
   padding: 24
 };

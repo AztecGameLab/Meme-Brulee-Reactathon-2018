@@ -11,7 +11,6 @@ import { fetchMemeTemplates, setRandomTemplate, submitMeme } from "../../feature
 
 //Selectors
 import { selectCurrentTemplate } from "../../features/meme/memeSelectors";
-import MemeImage from "./MemeImage";
 
 class MemeWidget extends Component {
   state = {
@@ -37,16 +36,21 @@ class MemeWidget extends Component {
     const { fetchMemeTemplates, setRandomTemplate, currentTemplate } = this.props;
     return (
       <div>
-        Meme Widge Mini Game Here
-        <Button onClick={fetchMemeTemplates}>get memes</Button>
-        <Button onClick={setRandomTemplate}> select random </Button>
-        {currentTemplate ? <div>{currentTemplate.name}</div> : <div>non selected atm</div>}
+        <Button type="primary" icon="poweroff" onClick={fetchMemeTemplates}>Obtain a set of memes!</Button>
+        <br/><br/>
+        <Button type="primary" icon="search" onClick={setRandomTemplate}>Select a random meme!</Button>
+        <br/><br/>
+        {currentTemplate ? <div>{currentTemplate.name}</div> : 
+        <div>Press <text style={{color: '#1890ff'}}>"Obtain a set of memes!"</text>
+        <br/>then <text style={{color: '#1890ff'}}>"Select a random meme!"</text>
+        <br/>Your prompt will appear here!
+        </div>}
+        <br/>
         <Input placeholder="Top Caption..." onChange={e => this.handleCaptionInput(e, "text0")} />
+        <br/><br/>
         <Input placeholder="Bottom Caption..." onChange={e => this.handleCaptionInput(e, "text1")} />
-        <div>{this.state.topCaption}</div>
-        <div>{this.state.bottomCaption}</div>
-        <Button onClick={this.handleSubmitMeme}>Submit Meme</Button>
-        <MemeImage />
+        <br/><br/>
+        <Button onClick={this.handleSubmitMeme}>Submit your meme!</Button>
       </div>
     );
   }
