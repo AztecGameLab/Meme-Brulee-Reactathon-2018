@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
 //Actions
-import { processImage } from "../../features/users/UsersActions";
+import { processImage, addPlayer, removePlayer, recieveReactions } from "../../features/users/UsersActions";
 
 //Selectors
 import { selectMyEmotions } from "../../features/users/UserSelectors";
@@ -19,42 +19,32 @@ import { Breadcrumb, Col, Layout, Menu, Row } from "antd";
 const { Header, Content, Footer } = Layout;
 
 class Room extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      connections: {}
-    };
-  }
-
   componentDidMount() {
     const that = this;
+    //Session Connection Listeners
     this.sessionRef.sessionHelper.session.on("connectionCreated", event => {
-      let { connections } = that.state;
+      const { addPlayer } = that.props;
+      let connections = {};
       event.connections.forEach(connection => {
         connections[connection.connectionId] = {};
       });
-      that.setState({ connections });
+      addPlayer(connections);
     });
     this.sessionRef.sessionHelper.session.on("connectionDestroyed", event => {
-      let { connections } = that.state;
-      delete connections[event.connections.connectionId];
-      that.setState({
-        connections
-      });
+      that.props.removePlayer(event.connection.connectionId);
     });
+    //Broadcasting Listeners
     this.getReactions();
   }
 
   getReactions = () => {
     const that = this;
+    const { recieveReactions } = that.props;
     this.sessionRef.sessionHelper.session.on("signal:msg", event => {
       const subscriberData = JSON.parse(event.data);
-      const { connections } = that.state;
-      connections[subscriberData.connectionId] = subscriberData.faceData;
-      that.setState({
-        connections
-      });
+      let reactionData = {};
+      reactionData[subscriberData.connectionId] = subscriberData.faceData;
+      recieveReactions(reactionData);
     });
   };
 
@@ -169,7 +159,10 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      processImage
+      processImage,
+      addPlayer,
+      removePlayer,
+      recieveReactions
     },
     dispatch
   );
@@ -177,20 +170,6 @@ const mapDispatchToProps = dispatch =>
 export default connect(mapStateToProps, mapDispatchToProps)(Room);
 
 //Inline Styles
-const headerStyle = {
-  position: "absolute",
-  overflow: "hidden",
-  height: "64px",
-  width: "100%",
-  top: 0,
-  left: 0
-};
-
-const menuStyle = {
-  lineHeight: "64px",
-  color: "#fff"
-};
-
 const contentStyle = {
   position: "absolute",
   overflow: "auto",

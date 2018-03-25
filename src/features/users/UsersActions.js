@@ -1,7 +1,9 @@
-import { PROCESS_IMAGE_LOADING, PROCESS_IMAGE_SUCCESS, PROCESS_IMAGE_FAILURE } from "./UserConstants";
+//Constants
+import { PROCESS_IMAGE_LOADING, PROCESS_IMAGE_SUCCESS, PROCESS_IMAGE_FAILURE, ADD_PLAYER, REMOVE_PLAYER, RECIEVE_REACTIONS } from "./UserConstants";
 
 import axios from "axios";
 
+//Microsoft Face API
 const face_api_process = params => {
   //params.returnOptions
   //params.b64Data
@@ -65,5 +67,23 @@ const processImageFailure = error => {
       type: PROCESS_IMAGE_FAILURE,
       payload: error.message
     });
+  };
+};
+
+export const addPlayer = connections => {
+  return dispatch => {
+    dispatch({ type: ADD_PLAYER, payload: connections });
+  };
+};
+
+export const removePlayer = playerName => {
+  return dispatch => {
+    dispatch({ type: REMOVE_PLAYER, payload: playerName });
+  };
+};
+
+export const recieveReactions = reactionData => {
+  return dispatch => {
+    dispatch({ type: RECIEVE_REACTIONS, payload: reactionData });
   };
 };
