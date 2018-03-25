@@ -20,7 +20,29 @@ const face_api_process = params => {
     },
     data: imageBuffer
   }).then(response => {
-    return response.data;
+    const tempFaceData = response.data;
+    const numFaces = response.data.length;
+    let finalFaceData = {
+      smile: 0,
+      anger: 0,
+      contempt: 0,
+      disgust: 0,
+      fear: 0,
+      happiness: 0,
+      neutral: 0,
+      sadness: 0,
+      surprise: 0
+    };
+    tempFaceData.forEach(face => {
+      finalFaceData.smile += face.faceAttributes.smile;
+      Object.keys(face.faceAttributes.emotion).forEach(emotion => {
+        finalFaceData[emotion] += face.faceAttributes.emotion[emotion];
+      });
+    });
+    Object.keys(finalFaceData).forEach(emotion => {
+      return (finalFaceData[emotion] /= numFaces);
+    });
+    return finalFaceData;
   });
 };
 
