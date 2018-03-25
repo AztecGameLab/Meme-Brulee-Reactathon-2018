@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "antd": "^3.3.2",
     "axios": "^0.18.0",
     "netlify-lambda": "^0.3.0",
     "opentok-react": "^0.7.0",
