@@ -1,12 +1,38 @@
 //Constants
-import { LOAD_TEMPLATES_PROGRESS, LOAD_TEMPLATES_SUCCESS, LOAD_TEMPLATES_FAILURE, SET_RANDOM_TEMPLATE } from "./memeConstants";
+import { LOAD_TEMPLATES_PROGRESS, LOAD_TEMPLATES_SUCCESS, LOAD_TEMPLATES_FAILURE, SET_RANDOM_TEMPLATE, SUBMIT_MEME_PROGRESS, SUBMIT_MEME_SUCCESS, SUBMIT_MEME_FAILURE } from "./memeConstants";
 
 //Selectors
 import { selectAllTemplates } from "./memeSelectors";
 
-//Imgflip API Call
+import axios from "axios";
+
+//Imgflip API Calls
 const template_fetch = () => {
   return fetch("https://api.imgflip.com/get_memes").then(response => response.json());
+};
+
+const meme_post = memeObj => {
+  memeObj.username = process.env.REACT_APP_IMGFLIP_USER;
+  memeObj.password = process.env.REACT_APP_IMGFLIP_PASS;
+  const baseUrl = "https://api.imgflip.com/caption_image";
+  const encodedParams = paramEncoder(memeObj);
+  debugger;
+
+  return axios(baseUrl + encodedParams).then(response => {
+    return response.data;
+  });
+};
+
+//Helper Encoder
+const paramEncoder = params => {
+  return (
+    "?" +
+    Object.keys(params)
+      .map(key => {
+        return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
+      })
+      .join("&")
+  );
 };
 
 //Internal Helper Dispatches for Template
@@ -48,5 +74,38 @@ export const setRandomTemplate = () => {
       type: SET_RANDOM_TEMPLATE,
       payload: memeTemplates[randomIndex]
     });
+  };
+};
+
+export const submitMeme = memeObj => {
+  return dispatch => {
+    dispatch({ type: SUBMIT_MEME_PROGRESS });
+    return meme_post(memeObj)
+      .then(response => {
+        if (response.success) {
+          const memeData = response.data;
+          dispatch(submitMemeSuccess(memeData));
+        } else {
+          const errorMessage = response.error_message;
+          dispatch(submitMemeFailure(errorMessage));
+        }
+      })
+      .catch(response => {
+        const errorMessage = response.error_message;
+        dispatch(submitMemeFailure(errorMessage));
+      });
+  };
+};
+
+const submitMemeSuccess = memeObj => {
+  return dispatch => {
+    dispatch({ type: SUBMIT_MEME_SUCCESS, payload: memeObj });
+  };
+};
+
+const submitMemeFailure = errorObj => {
+  const errorMsg = errorObj.msg;
+  return dispatch => {
+    dispatch({ type: SUBMIT_MEME_FAILURE, payload: errorMsg });
   };
 };
