@@ -11,6 +11,7 @@ import { fetchMemeTemplates, setRandomTemplate, submitMeme } from "../../feature
 
 //Selectors
 import { selectCurrentTemplate } from "../../features/meme/memeSelectors";
+import MemeImage from "./MemeImage";
 
 class MemeWidget extends Component {
   state = {
@@ -45,6 +46,7 @@ class MemeWidget extends Component {
         <div>{this.state.topCaption}</div>
         <div>{this.state.bottomCaption}</div>
         <Button onClick={this.handleSubmitMeme}>Submit Meme</Button>
+        <MemeImage />
       </div>
     );
   }
