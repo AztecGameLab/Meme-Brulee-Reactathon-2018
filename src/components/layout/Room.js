@@ -39,9 +39,9 @@ class Room extends Component {
     this.sessionRef.sessionHelper.session.on("signal:meme", event => {
       that.props.recievedMemes(event.data);
     });
-    this.sessionRef.sessionHelper.session.on("signal:playGame", event => {
-      that.props.playGame();
-    });
+    // this.sessionRef.sessionHelper.session.on("signal:playGame", event => {
+    //   that.props.playGame();
+    // });
     this.reactionListener();
   }
 
@@ -97,12 +97,8 @@ class Room extends Component {
   };
 
   subscriberEventHandlers = {
-    videoDisabled: event => {
-      console.log("Subscriber video disabled!");
-    },
-    videoEnabled: event => {
-      console.log("Subscriber video enabled!");
-    }
+    videoDisabled: event => {},
+    videoEnabled: event => {}
   };
 
   render() {
@@ -150,7 +146,7 @@ class Room extends Component {
               <Col span={8}>
                 <div style={boxStyle}>
                   <center>
-                    <MemeWidget sessionRef={this.sessionRef} />
+                    <MemeWidget sessionRef={this.sessionRef} getMyEmotions={this.getMyEmotions} sendMyEmotions={this.sendMyEmotions} />
                   </center>
                 </div>
               </Col>

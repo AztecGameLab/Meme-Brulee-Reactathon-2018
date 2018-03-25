@@ -56,7 +56,7 @@ class MemeWidget extends Component {
   };
 
   render() {
-    const { currentTemplate, cookingStatus, memeWasSent, playGame, currentPhase, playAgain } = this.props;
+    const { currentTemplate, cookingStatus, memeWasSent, currentPhase, playAgain, getMyEmotions, sendMyEmotions } = this.props;
     let currComponent = <div>?</div>;
     if (cookingStatus === "finished" && !memeWasSent) {
       this.handleSubmitMeme();
@@ -69,7 +69,7 @@ class MemeWidget extends Component {
         currComponent = <MemeInput currentTemplate={currentTemplate} handleTop={e => this.handleCaptionInput(e, "text0")} handleBot={e => this.handleCaptionInput(e, "text1")} />;
         break;
       case GM_PHASES[2]:
-        currComponent = <PresentMeme playAgain={playAgain} />;
+        currComponent = <PresentMeme playAgain={playAgain} getMyEmotions={getMyEmotions} sendMyEmotions={sendMyEmotions} />;
         break;
       default:
         currComponent = <div>Loading...</div>;

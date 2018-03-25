@@ -19,7 +19,7 @@ import { GM_PHASES } from "./memeActions";
 //Initial State
 const initialMemeState = {
   currentTemplate: "idle",
-  currentPhase: GM_PHASES[0],
+  currentPhase: GM_PHASES[2],
   loadMemeStatus: "idle",
   submitMemeStatus: "idle",
   memeTemplates: [],
