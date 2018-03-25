@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-
 import { Carousel, Button } from "antd";
 
 //Selectors
@@ -10,7 +8,7 @@ class PresentMeme extends Component {
   render() {
     const { memesToPresent, playAgain } = this.props;
     const imageList = memesToPresent.map(meme => {
-      return <img key={meme.url} src={meme.url} alt="Loading Your Friends' Memes" />;
+      return <img key={meme.url} style={imageStyle} src={meme.url} alt="Loading Your Friends' Memes" />;
     });
     return (
       <div>
@@ -21,10 +19,9 @@ class PresentMeme extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    memesToPresent: selectReceivedMemes(state)
-  };
-};
+export default PresentMeme;
 
-export default connect(mapStateToProps, null)(PresentMeme);
+const imageStyle = {
+  height: '600px !important',
+  width: '800px !important'
+};

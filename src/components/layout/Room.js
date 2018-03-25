@@ -5,8 +5,9 @@ import { bindActionCreators } from "redux";
 
 //Actions
 import { processImage, addPlayer, removePlayer, recieveReactions } from "../../features/users/UsersActions";
-import { playGame, recievedMemes } from "../../features/meme/memeActions";
+import { playGame, recievedMemes, playAgain } from "../../features/meme/memeActions";
 import { storeSession } from "../../features/session/sessionActions";
+import { selectReceivedMemes } from "../../features/meme/memeSelectors";
 
 //Selectors
 import { selectMyEmotions } from "../../features/users/UserSelectors";
@@ -19,6 +20,7 @@ import logo from "../../../src/memelikey.svg";
 import MemeWidget from "../memegame/MemeWidget";
 import { OTSession, OTPublisher, OTStreams, OTSubscriber } from "opentok-react";
 import { Breadcrumb, Col, Layout, Menu, Row } from "antd";
+import PresentMeme from "../memegame/PresentMeme";
 const { Header, Content, Footer } = Layout;
 
 class Room extends Component {
@@ -116,7 +118,7 @@ class Room extends Component {
   };
 
   render() {
-    const { currentEmotions } = this.props;
+    const { currentEmotion, memesToPresent, playAgain } = this.props;
     return (
       <div className="App">
         <Layout className="layout" style={{ height: "100vh" }}>
@@ -154,14 +156,11 @@ class Room extends Component {
                   <button onClick={() => this.getMyEmotions()}>Get My Emotions </button>
                   <button onClick={() => this.sendMyEmotions()}>Broadcast Emotions </button>
                   <button onClick={() => this.playGame()}>Play Game </button>
-                  <div>Current Emotions: {JSON.stringify(currentEmotions)}</div>
                 </div>
               </Col>
               <Col span={13}>
                 <div style={boxStyle}>
-                  <center>
-                    <MemeImage />
-                  </center>
+                  <center>{this.props.memesToPresent.length > 0 ? <PresentMeme memesToPresent={memesToPresent} playAgain={playAgain} /> : <MemeImage />}</center>
                 </div>
               </Col>
               <Col span={5}>
@@ -183,7 +182,8 @@ class Room extends Component {
 const mapStateToProps = state => {
   return {
     session: state.sessionState,
-    currentEmotions: selectMyEmotions(state)
+    currentEmotions: selectMyEmotions(state),
+    memesToPresent: selectReceivedMemes(state)
   };
 };
 
@@ -196,7 +196,8 @@ const mapDispatchToProps = dispatch =>
       recieveReactions,
       playGame,
       storeSession,
-      recievedMemes
+      recievedMemes,
+      playAgain
     },
     dispatch
   );
@@ -214,7 +215,7 @@ const contentStyle = {
 };
 
 const breadcrumbStyle = {
-  textAlign: 'center',
+  textAlign: "center",
   margin: "16px 0"
 };
 
