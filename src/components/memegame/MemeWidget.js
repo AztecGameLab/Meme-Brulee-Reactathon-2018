@@ -16,8 +16,8 @@ import { selectCurrentTemplate, selectMemeWasSent, selectCurrentPhase } from "..
 
 class MemeWidget extends Component {
   state = {
-    text0: "",
-    text1: ""
+    text0: " ",
+    text1: " "
   };
 
   handleCaptionInput = (e, caption) => {

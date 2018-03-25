@@ -49,7 +49,7 @@ class PresentMeme extends Component {
 const mapStateToProps = state => {
   return {
     memesToPresent: selectReceivedMemes(state),
-    emojiObj: selectEmojiMap(state)
+    emojiObj: selectEmojiMap(state),
   };
 };
 

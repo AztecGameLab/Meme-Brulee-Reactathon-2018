@@ -32,7 +32,7 @@ class MemeImage extends Component {
             <br />
             <br />
             <br />
-            <h3>Did you know? Crème brûlées are yummy!</h3>
+            <h3>Did you know? The Crème brûlée recipe dates back to the 17th century!</h3>
           </div>
         )}
       </div>

@@ -15,14 +15,13 @@ import MemeImage from "./../memegame/MemeImage.js";
 //Logo
 import logo from "../../../src/memelikey.svg";
 import netlify from "../../../src/netlify.png";
-
+import tokbox from "../../../src/tokbox.png";
 
 //Components
 import MemeWidget from "../memegame/MemeWidget";
 import { OTSession, OTPublisher, OTStreams, OTSubscriber } from "opentok-react";
 import { Breadcrumb, Col, Layout, Menu, Row } from "antd";
 import PresentMeme from "../memegame/PresentMeme";
-import Emoji from "react-emoji-render";
 
 const { Header, Content, Footer } = Layout;
 
@@ -174,7 +173,7 @@ class Room extends Component {
               </Col>
             </Row>
           </Content>
-          <Footer style={footerStyle}>Cooked by SDSU Aztec Game Lab | Baked with <img src={netlify} height="20" width="20" alt="Nelify" /> | Reactathon 2018 © 
+          <Footer style={footerStyle}>Cooked by <a href="https://github.com/AztecGameLab"> SDSU Aztec Game Lab </a>| Baked <a href="https://www.netlify.com/"> with <img src={netlify} height="20" width="20" alt="Nelify" /></a> | Coming at ya live <a href="https://tokbox.com/"> with <img src={tokbox} height="20" width="20" alt="Nelify" /> </a>| <a href="https://www.reactathon.com/">Reactathon 2018 © </a> 
           </Footer>
         </Layout>
       </div>
