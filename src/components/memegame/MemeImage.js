@@ -12,7 +12,9 @@ class MemeImage extends Component {
     return (
       <div>
         {currentTemplate.url ? (
-          <Image src={currentTemplate.url} width={"800"} height={"600"} alt="Loading Your Meme Template" />
+          <div>
+            <Image src={currentTemplate.url} width={"800"} height={"600"} alt="Loading Your Meme Template" />
+          </div>
         ) : (
           <div style={{ textAlign: "center", paddingTop: "30%" }}>
             <Spin size="large" />

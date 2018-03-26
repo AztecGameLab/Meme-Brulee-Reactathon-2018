@@ -13,7 +13,10 @@ class PresentMeme extends Component {
     const imageList = memesToPresent.map(meme => {
       return (
         <div key={meme.url}>
-          <img key={meme.url} src={meme.url} alt="Loading Your Friends' Memes" />;
+          <span role="img" aria-label="emoji">
+            👈 Use your arrow keys to browse the creations! 👉
+          </span>
+          <img key={meme.url} src={meme.url} alt="Loading Your Friends' Memes" />
         </div>
       );
     });
@@ -24,12 +27,10 @@ class PresentMeme extends Component {
     );
   }
 }
-
 const mapStateToProps = state => {
   return {
     memesToPresent: selectReceivedMemes(state),
     player: state.userState
   };
 };
-
 export default connect(mapStateToProps, null)(PresentMeme);
