@@ -76,7 +76,6 @@ export const processImage = params => {
     return face_api_process(params)
       .then(emotionData => {
         dispatch(processImageSuccess(emotionData));
-        dispatch(aggregateEmotions());
       })
       .catch(error => {
         dispatch(processImageFailure(error));
@@ -125,14 +124,13 @@ export const aggregateEmotions = () => {
     const players = selectPlayers(getState());
     let emotionMap = selectEmojiMap(getState());
     Object.keys(players).map(playerID => {
-      Object.keys(players[playerID]).forEach((emotion, idx) => {
-        if (emotion !== "name") {
-          if (idx !== 6) {
-            let emotionVal = Math.floor(players[playerID][emotion] * 50);
-            emotionMap[idx].val += emotionVal;
-          }
-        }
-      });
+      if (players[playerID].faceData) {
+        Object.keys(players[playerID].faceData).forEach((emotion, idx) => {
+          let emotionVal = Math.floor(players[playerID].faceData[emotion] * 50);
+          console.log(emotionVal);
+          emotionMap[idx].val += emotionVal;
+        });
+      }
     });
     dispatch({ type: AGGREGATE_EMOJIS, payload: emotionMap });
   };

@@ -13,15 +13,15 @@ class PresentMeme extends Component {
     const imageList = memesToPresent.map(meme => {
       return (
         <div key={meme.url}>
-          <span role="img" aria-label="emoji">
-            👈 Use your arrow keys to browse the creations! 👉
-          </span>
           <img key={meme.url} src={meme.url} alt="Loading Your Friends' Memes" />
         </div>
       );
     });
     return (
       <div>
+        <span role="img" aria-label="emoji">
+          👈 Use your arrow keys to browse the creations! 👉
+        </span>
         <Carousel autoplay>{imageList}</Carousel>
       </div>
     );
