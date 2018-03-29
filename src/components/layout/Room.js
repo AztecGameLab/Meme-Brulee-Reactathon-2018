@@ -5,7 +5,7 @@ import { bindActionCreators } from "redux";
 
 //Actions
 import { aggregateEmotions, processImage, addPlayer, removePlayer, recieveReactions } from "../../features/users/UsersActions";
-import { playGame, recievedMemes, playAgain } from "../../features/meme/memeActions";
+import { playGame, receivedMemes, playAgain } from "../../features/meme/memeActions";
 import { storeSession } from "../../features/session/sessionActions";
 import { selectReceivedMemes } from "../../features/meme/memeSelectors";
 
@@ -70,7 +70,11 @@ class Room extends Component {
     this.sessionRef.sessionHelper.session.on("signal:meme", event => {
       const { players } = that.state;
       if (!players[event.from.id]) {
-        that.props.recievedMemes(JSON.parse(event.data));
+        const data = {
+          id: event.from.id,
+          url: JSON.parse(event.data).url
+        };
+        that.props.receivedMemes(data);
         players[event.from.id] = true;
         that.setState({ players });
       }
@@ -124,7 +128,7 @@ class Room extends Component {
     const returnOptions = {
       returnFaceId: "true",
       returnFaceLandmarks: "false",
-      returnFaceAttributes: "smile,emotion"
+      returnFaceAttributes: "emotion"
     };
     const params = Object.assign({}, { b64Data }, returnOptions);
     return processImage(params);
@@ -257,7 +261,7 @@ const mapDispatchToProps = dispatch =>
       recieveReactions,
       playGame,
       storeSession,
-      recievedMemes,
+      receivedMemes,
       playAgain,
       aggregateEmotions
     },

@@ -161,7 +161,7 @@ export const playGame = () => {
   };
 };
 
-export const recievedMemes = newMeme => {
+export const receivedMemes = newMeme => {
   return dispatch => {
     dispatch({ type: RECEIVED_MEMES, payload: newMeme });
   };

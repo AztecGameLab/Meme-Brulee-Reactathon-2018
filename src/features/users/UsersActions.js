@@ -26,7 +26,6 @@ const face_api_process = params => {
     const tempFaceData = response.data;
     const numFaces = response.data.length;
     let finalFaceData = {
-      smile: 0,
       anger: 0,
       contempt: 0,
       disgust: 0,
@@ -38,7 +37,6 @@ const face_api_process = params => {
     };
     if (Object.keys(tempFaceData).length > 0) {
       tempFaceData.forEach(face => {
-        finalFaceData.smile += face.faceAttributes.smile;
         Object.keys(face.faceAttributes.emotion).forEach(emotion => {
           finalFaceData[emotion] += face.faceAttributes.emotion[emotion];
         });
@@ -127,7 +125,6 @@ export const aggregateEmotions = () => {
       if (players[playerID].faceData) {
         Object.keys(players[playerID].faceData).forEach((emotion, idx) => {
           let emotionVal = Math.floor(players[playerID].faceData[emotion] * 50);
-          console.log(emotionVal);
           emotionMap[idx].val += emotionVal;
         });
       }

@@ -1,6 +1,6 @@
 //Constants
 import { CLEAR_MEMES } from "../meme/memeConstants";
-import { PROCESS_IMAGE_LOADING, PROCESS_IMAGE_SUCCESS, ADD_PLAYER, REMOVE_PLAYER, RECIEVE_REACTIONS, AGGREGATE_EMOJIS } from "./UserConstants";
+import { PROCESS_IMAGE_LOADING, PROCESS_IMAGE_SUCCESS, ADD_PLAYER, REMOVE_PLAYER, RECIEVE_REACTIONS, AGGREGATE_EMOJIS, RECEIVED_MEMES } from "./UserConstants";
 
 //Initial State
 const initialUsersState = {
@@ -8,12 +8,11 @@ const initialUsersState = {
   processImageStatus: "idle",
   currentEmotionData: [],
   emojiMap: [
-    { emoji: "😂", val: 0 },// Smile
     { emoji: "😤", val: 0 }, // Anger
     { emoji: "🤬", val: 0 }, // Contempt
     { emoji: "🤮", val: 0 }, // Digust
     { emoji: "😨", val: 0 }, // Fear
-    { emoji: "😍", val: 0 }, // Happiness
+    { emoji: "😂", val: 0 }, // Happiness
     { emoji: "🤔", val: 0 }, // Thinking
     { emoji: "😭", val: 0 }, // Sad
     { emoji: "🤯", val: 0 } // Surprised
@@ -21,6 +20,7 @@ const initialUsersState = {
 }; //idle -> loading -> success or fail //Session Reducer
 //Status Process
 export default (state = initialUsersState, action) => {
+  let player;
   switch (action.type) {
     case PROCESS_IMAGE_LOADING:
       return Object.assign({}, state, { processImageStatus: "loading" });
@@ -32,8 +32,14 @@ export default (state = initialUsersState, action) => {
       let { players } = state;
       delete players[action.payload];
       return Object.assign({}, state, { players });
+    case RECEIVED_MEMES:
+      player = state.players[action.payload.id];
+      if (player) {
+      player.meme = action.payload.url;
+      }
+    return Object.assign({}, state, { players: Object.assign({}, state.players) });
     case RECIEVE_REACTIONS:
-      const player = state.players[action.payload.id];
+      player = state.players[action.payload.id];
       if (player) {
         player.faceData = action.payload.faceData;
       }

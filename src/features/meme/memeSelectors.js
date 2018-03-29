@@ -4,7 +4,7 @@ import { createSelector } from "reselect";
 const getAllMemeTemplates = state => state.gameState.memeTemplates;
 const getCurrentTemplate = state => state.gameState.currentTemplate;
 const getCompletedMemes = state => state.gameState.completedMemes;
-const getReceivedMemes = state => state.gameState.recievedMemes;
+const getReceivedMemes = state => state.gameState.receivedMemes;
 const getMyEmotions = state => state.gameState.currentEmoticons;
 const getCookStatus = state => state.gameState.cookTimeIsUp;
 const getMemeWasSent = state => state.gameState.memeWasSent;

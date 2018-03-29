@@ -26,7 +26,7 @@ const initialMemeState = {
   completedMemes: [],
   errorMessage: "",
   cookTimeIsUp: "idle",
-  recievedMemes: [],
+  receivedMemes: [],
   memeWasSent: false
 };
 
@@ -61,7 +61,7 @@ export default (state = initialMemeState, action) => {
     case COOK_TIME_IS_UP:
       return Object.assign({}, state, { cookTimeIsUp: "finished" });
     case RECEIVED_MEMES:
-      return Object.assign({}, state, { recievedMemes: [...state.recievedMemes, action.payload], memeWasSent: true });
+      return Object.assign({}, state, { receivedMemes: [...state.receivedMemes, action.payload], memeWasSent: true });
     case CLEAR_MEMES:
       return {
         ...initialMemeState
