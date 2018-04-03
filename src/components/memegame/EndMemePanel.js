@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 
 //Components
@@ -19,7 +18,6 @@ class EndMemePanel extends Component {
 
   componentDidMount() {
     //Initial Emotion Grab
-    const that = this;
     const { getMyEmotions } = this.props;
     const { sendMyEmotions } = this.props;
     let { counter } = this.state;

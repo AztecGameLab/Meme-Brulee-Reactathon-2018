@@ -121,7 +121,7 @@ export const aggregateEmotions = () => {
   return (dispatch, getState) => {
     const players = selectPlayers(getState());
     let emotionMap = selectEmojiMap(getState());
-    Object.keys(players).map(playerID => {
+    Object.keys(players).forEach(playerID => {
       if (players[playerID].faceData) {
         Object.keys(players[playerID].faceData).forEach((emotion, idx) => {
           let emotionVal = Math.floor(players[playerID].faceData[emotion] * 50);
