@@ -12,7 +12,7 @@ class EndMemePanel extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      emotionTimer: null
+      counter: 0
     };
   }
 
@@ -20,22 +20,22 @@ class EndMemePanel extends Component {
     //Initial Emotion Grab
     const { getMyEmotions } = this.props;
     const { sendMyEmotions } = this.props;
-
-    getMyEmotions().then(() => {
-      sendMyEmotions();
-    });
-    let emotionGauge = setInterval(() => {
-      this.props.getMyEmotions().then(() => {
-        this.props.sendMyEmotions();
+    let { counter } = this.state;
+    while (counter < 2) {
+      getMyEmotions().then(async myEmotions => {
+        await sendMyEmotions();
       });
-    }, 6000);
-    this.setState({
-      emotionTimer: emotionGauge
-    });
+      counter++;
+      this.setState({
+        counter
+      });
+    }
   }
+
   componentWillUnmount() {
     clearInterval(this.state.emotionTimer);
   }
+
   render() {
     const { emojiObj, playAgain } = this.props;
     const emojiList = emojiObj.map(emotion => {
@@ -67,6 +67,7 @@ class EndMemePanel extends Component {
 
 const mapStateToProps = state => {
   return {
+    users: state.usersState,
     emojiObj: selectEmojiMap(state)
   };
 };

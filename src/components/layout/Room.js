@@ -4,13 +4,14 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
 //Actions
-import { processImage, addPlayer, removePlayer, recieveReactions } from "../../features/users/UsersActions";
-import { playGame, recievedMemes, playAgain } from "../../features/meme/memeActions";
+import { aggregateEmotions, processImage, addPlayer, removePlayer, recieveReactions } from "../../features/users/UsersActions";
+import { playGame, receivedMemes, playAgain } from "../../features/meme/memeActions";
 import { storeSession } from "../../features/session/sessionActions";
 import { selectReceivedMemes } from "../../features/meme/memeSelectors";
 
 //Selectors
 import MemeImage from "./../memegame/MemeImage.js";
+import { selectMyEmotions } from "../../features/users/UserSelectors";
 
 //Logo
 import logo from "../../../src/memelikey.svg";
@@ -23,42 +24,57 @@ import { OTSession, OTPublisher, OTStreams, OTSubscriber } from "opentok-react";
 import { Breadcrumb, Col, Layout, Menu, Row } from "antd";
 import PresentMeme from "../memegame/PresentMeme";
 
+const OpenTok = require("opentok");
 const { Header, Content, Footer } = Layout;
 
 class Room extends Component {
-  state = {
-    players: {}
-  };
+  constructor(props) {
+    super(props);
+    let token = null;
+    let ot = new OpenTok(process.env.REACT_APP_API_KEY, process.env.REACT_APP_API_SECRET);
+    let tokenOptions = {};
+    tokenOptions.data = JSON.stringify({ name: this.publisherProperties.name });
+    token = ot.generateToken(process.env.REACT_APP_SESSION_ID, tokenOptions);
+    this.state = {
+      players: {},
+      token: token,
+      id: ""
+    };
+  }
 
   componentDidMount() {
     const that = this;
     //Session Connection Listeners
     this.props.storeSession(this.sessionRef.sessionHelper.session);
-    if (this.publisherRef) {
+    this.sessionRef.sessionHelper.session.on("connectionCreated", event => {
+      console.log(event.connection);
+      const data = JSON.parse(event.connection.data);
+      console.log("Connection data: ", data);
+      //publisher
+      if (data.name === this.publisherProperties.name) {
+        that.setState({
+          id: event.connection.connectionId
+        });
+      }
       const { addPlayer } = that.props;
       const player = {
-        [this.publisherRef.publisherId]: {
-          name: this.publisherProperties.name
-        }
-      };
-      addPlayer(player);
-    }
-    this.sessionRef.sessionHelper.session.on("streamCreated", event => {
-      const { addPlayer } = that.props;
-      const player = {
-        [event.stream.id]: {
-          name: event.stream.name
+        [event.connection.connectionId]: {
+          name: data.name
         }
       };
       addPlayer(player);
     });
-    this.sessionRef.sessionHelper.session.on("streamDestroyed", event => {
-      that.props.removePlayer(event.stream.id);
+    this.sessionRef.sessionHelper.session.on("connectionDestroyed", event => {
+      that.props.removePlayer(event.connection.connectionId);
     });
     this.sessionRef.sessionHelper.session.on("signal:meme", event => {
       const { players } = that.state;
       if (!players[event.from.id]) {
-        that.props.recievedMemes(event.data);
+        const data = {
+          id: event.from.id,
+          url: JSON.parse(event.data).url
+        };
+        that.props.receivedMemes(data);
         players[event.from.id] = true;
         that.setState({ players });
       }
@@ -71,23 +87,26 @@ class Room extends Component {
 
   reactionListener = () => {
     const that = this;
-    const { recieveReactions } = that.props;
+    const { recieveReactions, aggregateEmotions } = that.props;
     this.sessionRef.sessionHelper.session.on("signal:msg", event => {
       const subscriberData = JSON.parse(event.data);
       let reactionData = {};
-      reactionData[subscriberData.playerId] = subscriberData.faceData;
+      reactionData.id = subscriberData.playerId;
+      reactionData.faceData = subscriberData.faceData;
       recieveReactions(reactionData);
+      aggregateEmotions();
     });
   };
 
   sendMyEmotions = () => {
-    const { currentEmotions } = this.props;
-    const { session } = this.sessionRef.sessionHelper;
-    session.signal(
+    const that = this;
+    const { currentEmotions } = that.props;
+    const { session } = that.sessionRef.sessionHelper;
+    return session.signal(
       {
         type: "msg",
         data: JSON.stringify({
-          playerId: this.publisherProperties.name,
+          playerId: that.state.id,
           faceData: currentEmotions
         })
       },
@@ -109,14 +128,13 @@ class Room extends Component {
     const returnOptions = {
       returnFaceId: "true",
       returnFaceLandmarks: "false",
-      returnFaceAttributes: "smile,emotion"
+      returnFaceAttributes: "emotion"
     };
     const params = Object.assign({}, { b64Data }, returnOptions);
     return processImage(params);
   };
 
   CustomPublisher = props => {
-    const that = this;
     return (
       <div>
         <OTPublisher
@@ -179,7 +197,7 @@ class Room extends Component {
                     }}
                     apiKey={process.env.REACT_APP_API_KEY}
                     sessionId={process.env.REACT_APP_SESSION_ID}
-                    token={process.env.REACT_APP_TOKEN_ID}
+                    token={this.state.token}
                   >
                     <this.CustomPublisher />
                     <OTStreams>
@@ -202,7 +220,7 @@ class Room extends Component {
               <Col span={5}>
                 <div style={boxStyle}>
                   <center>
-                    <MemeWidget sessionRef={this.sessionRef} playAgain={playAgain} getMyEmotions={this.getMyEmotions} sendMyEmotions={this.sendMyEmotions} />
+                    <MemeWidget sessionRef={this.props.session} playAgain={playAgain} getMyEmotions={this.getMyEmotions} sendMyEmotions={this.sendMyEmotions} />
                   </center>
                 </div>
               </Col>
@@ -229,7 +247,8 @@ class Room extends Component {
 const mapStateToProps = state => {
   return {
     session: state.sessionState,
-    memesToPresent: selectReceivedMemes(state)
+    memesToPresent: selectReceivedMemes(state),
+    currentEmotions: selectMyEmotions(state)
   };
 };
 
@@ -242,8 +261,9 @@ const mapDispatchToProps = dispatch =>
       recieveReactions,
       playGame,
       storeSession,
-      recievedMemes,
-      playAgain
+      receivedMemes,
+      playAgain,
+      aggregateEmotions
     },
     dispatch
   );

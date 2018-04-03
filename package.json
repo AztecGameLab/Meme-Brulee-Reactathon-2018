@@ -6,6 +6,7 @@
     "antd": "^3.3.2",
     "axios": "^0.18.0",
     "netlify-lambda": "^0.3.0",
+    "opentok": "^2.6.2",
     "opentok-react": "^0.7.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",

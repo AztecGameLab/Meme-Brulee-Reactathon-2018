@@ -36,7 +36,7 @@ class MemeWidget extends Component {
       that.props.session.signal(
         {
           type: "meme",
-          data: that.props.completedMemes
+          data: JSON.stringify(that.props.completedMemes)
         },
         error => {
           if (error) {

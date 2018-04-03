@@ -26,7 +26,6 @@ const face_api_process = params => {
     const tempFaceData = response.data;
     const numFaces = response.data.length;
     let finalFaceData = {
-      smile: 0,
       anger: 0,
       contempt: 0,
       disgust: 0,
@@ -38,7 +37,6 @@ const face_api_process = params => {
     };
     if (Object.keys(tempFaceData).length > 0) {
       tempFaceData.forEach(face => {
-        finalFaceData.smile += face.faceAttributes.smile;
         Object.keys(face.faceAttributes.emotion).forEach(emotion => {
           finalFaceData[emotion] += face.faceAttributes.emotion[emotion];
         });
@@ -76,7 +74,6 @@ export const processImage = params => {
     return face_api_process(params)
       .then(emotionData => {
         dispatch(processImageSuccess(emotionData));
-        dispatch(aggregateEmotions());
       })
       .catch(error => {
         dispatch(processImageFailure(error));
@@ -124,15 +121,13 @@ export const aggregateEmotions = () => {
   return (dispatch, getState) => {
     const players = selectPlayers(getState());
     let emotionMap = selectEmojiMap(getState());
-    Object.keys(players).map(playerID => {
-      Object.keys(players[playerID]).forEach((emotion, idx) => {
-        if (emotion !== "name") {
-          if (idx !== 6) {
-            let emotionVal = Math.floor(players[playerID][emotion] * 50);
-            emotionMap[idx].val += emotionVal;
-          }
-        }
-      });
+    Object.keys(players).forEach(playerID => {
+      if (players[playerID].faceData) {
+        Object.keys(players[playerID].faceData).forEach((emotion, idx) => {
+          let emotionVal = Math.floor(players[playerID].faceData[emotion] * 50);
+          emotionMap[idx].val += emotionVal;
+        });
+      }
     });
     dispatch({ type: AGGREGATE_EMOJIS, payload: emotionMap });
   };
