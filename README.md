@@ -5,6 +5,11 @@
 
 Want to try it out? Simply go to memebrulee.netlify.com to access!
 
+## Reactathon 2018
+We were interviewed! Check it out!
+
+[![Check it out!](https://img.youtube.com/vi/MJlubZQ1uTo/hqdefault.jpg)](https://youtu.be/MJlubZQ1uTo)  
+
 ## Screenshots
 
 ![mème brûlée](https://i.imgur.com/Eck1Fzf.gif)
