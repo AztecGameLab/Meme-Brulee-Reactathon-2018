@@ -8,7 +8,7 @@ Want to try it out? Simply go to memebrulee.netlify.com to access!
 ## Reactathon 2018
 We were interviewed! Check it out!
 
-[![Check it out!](https://img.youtube.com/vi/MJlubZQ1uTo/hqdefault.jpg)](https://youtu.be/MJlubZQ1uTo)  
+[![Check it out!](https://img.youtube.com/vi/MJlubZQ1uTo/hqdefault.jpg)](https://www.youtube.com/watch?v=MJlubZQ1uTo)  
 
 ## Screenshots
 
