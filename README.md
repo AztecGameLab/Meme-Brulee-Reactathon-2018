@@ -23,7 +23,7 @@ We were interviewed! Check it out!
 ## Authors
 - [Brian Vo](http://github.com/bryevo) 😏
 - [Kevin Do](http://github.com/Kevin-Do) 🤔
-- [AC De Leon](http://github.com/acfromspace) 😶
+- [Andrew De Leon](http://github.com/ctrlaltdeleon) 😶
 
 ## Purpose of Creation
 The Reactathon Hackathon (2018 session) was sponsored in order to be designed for a fun, casual, and educational environment. There was a competition for prizes, but the main goal is education, building community, and learning to use some cool APIs and technologies.
